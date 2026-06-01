@@ -59,7 +59,7 @@ body {
   background-color: var(--bg-primary);
   background-image:
     linear-gradient(rgba(240, 244, 248, 0.55), rgba(240, 244, 248, 0.55)),
-    url('../public/image/background.png');
+    url('https://res.cloudinary.com/dw9kvnkkz/image/upload/f_auto,q_auto/background_tulocv');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

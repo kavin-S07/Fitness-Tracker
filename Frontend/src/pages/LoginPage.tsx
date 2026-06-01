@@ -35,10 +35,10 @@ const LoginPage: React.FC = () => {
       <div style={styles.container} className="fade-in">
         {/* Logo */}
         <div style={styles.logoWrap}>
-          <img src="/image/logo.png" alt="Fitness Tracker" style={styles.logo}
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-          <h1 style={styles.appName}>Fitness<span style={{ color: 'var(--green)' }}>Tracker</span></h1>
-        </div>
+  <img src="https://res.cloudinary.com/dw9kvnkkz/image/upload/v1780311049/logo_zfqzvd.png" alt="Fitness Tracker" style={styles.logo}
+    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+  <h1 style={styles.appName}>Fitness<span style={{ color: 'var(--green)' }}>Tracker</span></h1>
+</div>
 
         <div className="glass" style={styles.card}>
           <h2 style={styles.title}>Welcome Back</h2>
