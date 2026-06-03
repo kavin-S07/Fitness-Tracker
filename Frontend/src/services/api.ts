@@ -22,6 +22,12 @@ export const authAPI = {
   signup: (data: Record<string, unknown>) =>
     api.post('/auth/signup', data),
 
+  verifyOTP: (email: string, otp: string) =>
+    api.post('/auth/verify-otp', { email, otp }),
+
+  resendOTP: (email: string) =>
+    api.post('/auth/resend-otp', { email }),
+
   getProfile: () => api.get('/auth/profile'),
 
   updateProfile: (data: Record<string, unknown>) =>
