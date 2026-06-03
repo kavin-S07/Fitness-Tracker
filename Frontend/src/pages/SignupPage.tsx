@@ -1,7 +1,7 @@
 // ============================================================
-// src/pages/SignupPage.tsx  –  4-step signup with OTP verify
+// src/pages/SignupPage.tsx  –  3-step signup
 // ============================================================
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -24,13 +24,6 @@ const SignupPage: React.FC = () => {
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
-
-  // OTP state
-  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const cooldownTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [form, setForm] = useState<FormData>({
     name: '', email: '', password: '',
@@ -41,26 +34,11 @@ const SignupPage: React.FC = () => {
   const set = (key: keyof FormData, val: string | boolean) =>
     setForm((p) => ({ ...p, [key]: val }));
 
-  // ── Cooldown timer for resend ──────────────────────────────
-  const startCooldown = () => {
-    setResendCooldown(60);
-    if (cooldownTimer.current) clearInterval(cooldownTimer.current);
-    cooldownTimer.current = setInterval(() => {
-      setResendCooldown((prev) => {
-        if (prev <= 1) { clearInterval(cooldownTimer.current!); return 0; }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  useEffect(() => () => { if (cooldownTimer.current) clearInterval(cooldownTimer.current); }, []);
-
-  // ── Step 3 → send OTP ─────────────────────────────────────
   const handleSubmit = async () => {
     setError('');
     setLoading(true);
     try {
-      const res = await authAPI.signup({
+      await authAPI.signup({
         ...form,
         age: Number(form.age),
         height: Number(form.height),
@@ -68,9 +46,9 @@ const SignupPage: React.FC = () => {
         target_weight: Number(form.target_weight),
         activity_level: Number(form.activity_level),
       });
-      setSuccessMsg((res.data as any).message || `OTP sent to ${form.email}`);
-      startCooldown();
-      setStep(4);
+      // auto-login
+      await login(form.email, form.password);
+      navigate('/home');
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Signup failed. Try again.');
     } finally {
@@ -78,69 +56,10 @@ const SignupPage: React.FC = () => {
     }
   };
 
-  // ── OTP digit input handlers ───────────────────────────────
-  const handleOtpChange = (idx: number, val: string) => {
-    if (!/^\d?$/.test(val)) return;
-    const next = [...otpDigits];
-    next[idx] = val;
-    setOtpDigits(next);
-    if (val && idx < 5) otpRefs.current[idx + 1]?.focus();
-  };
-
-  const handleOtpKeyDown = (idx: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !otpDigits[idx] && idx > 0) {
-      otpRefs.current[idx - 1]?.focus();
-    }
-  };
-
-  const handleOtpPaste = (e: React.ClipboardEvent) => {
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    if (pasted.length === 6) {
-      setOtpDigits(pasted.split(''));
-      otpRefs.current[5]?.focus();
-    }
-  };
-
-  // ── Verify OTP ────────────────────────────────────────────
-  const handleVerifyOTP = async () => {
-    const otp = otpDigits.join('');
-    if (otp.length < 6) return setError('Please enter all 6 digits.');
-    setError('');
-    setLoading(true);
-    try {
-      const res = await authAPI.verifyOTP(form.email, otp);
-      const { token, user } = (res.data as any);
-      // Manually store token then redirect
-      localStorage.setItem('ft_token', token);
-      localStorage.setItem('ft_user', JSON.stringify(user));
-      navigate('/home');
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Invalid OTP. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ── Resend OTP ────────────────────────────────────────────
-  const handleResend = async () => {
-    if (resendCooldown > 0) return;
-    setError('');
-    try {
-      await authAPI.resendOTP(form.email);
-      setSuccessMsg('New OTP sent! Check your inbox.');
-      setOtpDigits(['', '', '', '', '', '']);
-      otpRefs.current[0]?.focus();
-      startCooldown();
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to resend OTP.');
-    }
-  };
-
   const steps = [
     { label: 'Account', icon: '🔐' },
     { label: 'Body',    icon: '📏' },
     { label: 'Goal',    icon: '🎯' },
-    { label: 'Verify',  icon: '✉️'  },
   ];
 
   return (
@@ -169,11 +88,6 @@ const SignupPage: React.FC = () => {
           </div>
 
           {error && <div className="msg-error" style={{ marginBottom: '1rem' }}>{error}</div>}
-          {successMsg && !error && (
-            <div className="msg-success" style={{ marginBottom: '1rem', background: 'rgba(0,200,150,0.1)', border: '1px solid var(--green)', borderRadius: 8, padding: '0.75rem 1rem', color: 'var(--green)', fontSize: '0.9rem' }}>
-              {successMsg}
-            </div>
-          )}
 
           {/* Step 1 */}
           {step === 1 && (
@@ -192,7 +106,7 @@ const SignupPage: React.FC = () => {
                 <input className="input-field" type="password" placeholder="Min. 6 characters" value={form.password} onChange={e => set('password', e.target.value)} />
               </div>
               <button className="btn-primary" style={{ marginTop: '0.5rem' }}
-                onClick={() => { if (!form.name || !form.email || !form.password) return setError('Fill all fields'); setError(''); setSuccessMsg(''); setStep(2); }}>
+                onClick={() => { if (!form.name || !form.email || !form.password) return setError('Fill all fields'); setError(''); setStep(2); }}>
                 Continue →
               </button>
             </div>
@@ -230,7 +144,7 @@ const SignupPage: React.FC = () => {
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
                 <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setStep(1)}>← Back</button>
                 <button className="btn-primary" style={{ flex: 2 }}
-                  onClick={() => { if (!form.age || !form.height || !form.weight) return setError('Fill all body stats'); setError(''); setSuccessMsg(''); setStep(3); }}>
+                  onClick={() => { if (!form.age || !form.height || !form.weight) return setError('Fill all body stats'); setError(''); setStep(3); }}>
                   Continue →
                 </button>
               </div>
@@ -283,60 +197,9 @@ const SignupPage: React.FC = () => {
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
                 <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setStep(2)}>← Back</button>
                 <button className="btn-primary" style={{ flex: 2 }} onClick={handleSubmit} disabled={loading}>
-                  {loading ? 'Sending OTP...' : '📧 Send Verification OTP'}
+                  {loading ? 'Creating...' : '🚀 Create Account'}
                 </button>
               </div>
-            </div>
-          )}
-
-          {/* Step 4 – OTP Verification */}
-          {step === 4 && (
-            <div style={styles.formGrid} className="fade-in">
-              <h2 style={styles.stepTitle}>Verify Email</h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '-0.5rem' }}>
-                We sent a 6-digit OTP to <strong style={{ color: 'var(--green)' }}>{form.email}</strong>. Enter it below to activate your account.
-              </p>
-
-              {/* OTP digit boxes */}
-              <div style={styles.otpRow} onPaste={handleOtpPaste}>
-                {otpDigits.map((d, i) => (
-                  <input
-                    key={i}
-                    ref={(el) => { otpRefs.current[i] = el; }}
-                    style={{ ...styles.otpBox, ...(d ? styles.otpBoxFilled : {}) }}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={d}
-                    onChange={(e) => handleOtpChange(i, e.target.value)}
-                    onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                    autoFocus={i === 0}
-                  />
-                ))}
-              </div>
-
-              <button className="btn-primary" onClick={handleVerifyOTP} disabled={loading} style={{ marginTop: '0.5rem' }}>
-                {loading ? 'Verifying...' : '✅ Verify & Create Account'}
-              </button>
-
-              {/* Resend */}
-              <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                Didn't receive it?{' '}
-                {resendCooldown > 0 ? (
-                  <span style={{ color: 'var(--text-muted)' }}>Resend in {resendCooldown}s</span>
-                ) : (
-                  <span style={{ color: 'var(--green)', cursor: 'pointer', fontWeight: 700 }} onClick={handleResend}>
-                    Resend OTP
-                  </span>
-                )}
-              </p>
-
-              <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.82rem' }}>
-                Wrong email?{' '}
-                <span style={{ color: 'var(--green)', cursor: 'pointer' }} onClick={() => { setStep(1); setError(''); setSuccessMsg(''); setOtpDigits(['','','','','','']); }}>
-                  Go back
-                </span>
-              </p>
             </div>
           )}
 
@@ -374,10 +237,6 @@ const styles: Record<string, React.CSSProperties> = {
   gymBtnActive: { border: '1px solid var(--green)', background: 'var(--green-dim)', color: 'var(--green)' },
   switchLink: { marginTop: '1.25rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.88rem' },
   link: { color: 'var(--green)', cursor: 'pointer', fontWeight: 700 },
-  // OTP styles
-  otpRow: { display: 'flex', gap: '0.6rem', justifyContent: 'center', marginTop: '0.5rem' },
-  otpBox: { width: 48, height: 56, textAlign: 'center', fontSize: '1.5rem', fontWeight: 800, background: '#111', border: '2px solid var(--border)', borderRadius: 10, color: 'var(--text-primary)', outline: 'none', fontFamily: 'monospace', transition: 'border-color 0.15s' },
-  otpBoxFilled: { borderColor: 'var(--green)', background: 'rgba(0,200,150,0.08)' },
 };
 
 export default SignupPage;
