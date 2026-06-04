@@ -10,6 +10,7 @@ const {
   getWorkoutHistory,
   getExerciseProgress,
   deleteWorkout,
+  getAllWorkouts,
 } = require('../controllers/exerciseController');
 
 const authMiddleware = require('../middleware/auth');
@@ -27,6 +28,7 @@ router.get('/workout/today', authMiddleware, getTodayWorkout);
 router.get('/workout/history', authMiddleware, getWorkoutHistory);
 router.get('/workout/progress/:exercise_id', authMiddleware, getExerciseProgress);
 router.delete('/workout/:id', authMiddleware, deleteWorkout);
+router.get('/workout/all', authMiddleware, getAllWorkouts); // New route to get all workouts for the user
 
 // --- Exercise library routes (public) ---
 // These must come AFTER the /workout/* routes

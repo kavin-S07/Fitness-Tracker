@@ -64,7 +64,6 @@ export const foodAPI = {
 
   deleteFood: (id: string | number) => api.delete(`/food/${id}`),
 };
-
 // ── Exercise ──────────────────────────────────────────────────
 export const exerciseAPI = {
   getCategories: () => api.get('/exercise/categories'),
@@ -74,9 +73,6 @@ export const exerciseAPI = {
 
   getById: (id: string | number) => api.get(`/exercise/${id}`),
 
-  // BUG FIX: Routes are mounted at /api/exercise, so workout sub-routes
-  // must be /exercise/workout/add not /workout/add.
-  // Old code used bare /workout/add which hit 404 every time.
   addWorkout: (data: {
     exercise_id: string | number;
     sets: { set_number: number; reps: number; weight: number }[];
@@ -86,6 +82,10 @@ export const exerciseAPI = {
   getTodayWorkout: () => api.get('/exercise/workout/today'),
 
   getWorkoutHistory: () => api.get('/exercise/workout/history'),
+
+  // NEW: fetch all workouts for the last N days (default 90)
+  getAllWorkouts: (days: number = 90) =>
+    api.get('/exercise/workout/all', { params: { days } }),
 
   getExerciseProgress: (exercise_id: string | number) =>
     api.get(`/exercise/workout/progress/${exercise_id}`),

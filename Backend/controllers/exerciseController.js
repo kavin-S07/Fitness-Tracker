@@ -294,6 +294,52 @@ const deleteWorkout = async (req, res) => {
   }
 };
 
+
+// ============================================
+// GET /api/exercise/workout/all
+// Returns all workout logs for the user within last N days
+// ============================================
+const getAllWorkouts = async (req, res) => {
+  const days = parseInt(req.query.days) || 90;
+  try {
+    const result = await pool.query(
+      `SELECT
+        wl.id,
+        wl.sets,
+        wl.reps,
+        wl.weight,
+        wl.workout_date,
+        wl.notes,
+        e.id          AS exercise_id,
+        e.exercise_name,
+        e.exercise_type,
+        e.target_muscle,
+        e.equipment
+       FROM workout_logs wl
+       JOIN exercise e ON wl.exercise_id = e.id
+       WHERE wl.user_id = $1 AND wl.workout_date >= NOW() - INTERVAL '${days} days'
+       ORDER BY wl.workout_date DESC, wl.created_at ASC`,
+      [req.user.id]
+    );
+
+    const workouts = result.rows.map(log => ({
+      ...log,
+      sets: parseInt(log.sets),
+      reps: parseInt(log.reps),
+      weight: parseFloat(log.weight),
+    }));
+
+    res.status(200).json({
+      success: true,
+      total: workouts.length,
+      workouts,
+    });
+  } catch (err) {
+    console.error('Get all workouts error:', err);
+    res.status(500).json({ success: false, message: 'Server error.' });
+  }
+};
+
 module.exports = {
   getExercises,
   getCategories,
@@ -303,4 +349,5 @@ module.exports = {
   getWorkoutHistory,
   getExerciseProgress,
   deleteWorkout,
+  getAllWorkouts,
 };
