@@ -18,7 +18,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     document.body.style.backgroundImage =
-      'linear-gradient(rgba(10,14,26,0.6), rgba(10,14,26,0.6)), url(/image/background.png)';
+      'linear-gradient(rgba(10,14,26,0.6), rgba(26, 26, 27, 0.6)), url(/image/background.png)';
     document.body.style.backgroundSize = 'cover';
     document.body.style.backgroundPosition = 'center';
     document.body.style.backgroundRepeat = 'no-repeat';
@@ -27,7 +27,7 @@ const App: React.FC = () => {
 
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           {/* Public */}
           <Route path="/login"  element={<LoginPage />} />

@@ -1,5 +1,5 @@
 const express = require('express');
-const cors = require('cors');
+const cors    = require('cors');
 require('dotenv').config();
 
 const app = express();
@@ -23,23 +23,37 @@ app.use(express.urlencoded({ extended: true }));
 // =============================================
 // ROUTES
 // =============================================
-const authRoutes = require('./routes/authRoutes');
-const foodRoutes = require('./routes/foodRoutes');
-const exerciseRoutes = require('./routes/exerciseRoutes');
+const authRoutes      = require('./routes/authRoutes');
+const foodRoutes      = require('./routes/foodRoutes');
+const exerciseRoutes  = require('./routes/exerciseRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const otpRoutes       = require('./routes/otpRoutes');
 
-app.use('/api/auth', authRoutes);
-app.use('/api/food', foodRoutes);
+// ── Public routes (no auth) ──────────────────
+app.use('/api/auth',     authRoutes);
+app.use('/api/otp',      otpRoutes);
+
+// ── Feature routes ───────────────────────────
+app.use('/api/food',     foodRoutes);
 app.use('/api/exercise', exerciseRoutes);
-app.use('/api', dashboardRoutes);
+
+// ── Dashboard routes (mounted at specific paths, NOT bare /api) ──
+// This avoids the prefix-match problem where /api catches /api/otp/*
+const { getDashboard, getWeeklyReport, logWeight, getWeightHistory } = require('./controllers/dashboardController');
+const authMiddleware = require('./middleware/auth');
+
+app.get('/api/dashboard',      authMiddleware, getDashboard);
+app.get('/api/report/weekly',  authMiddleware, getWeeklyReport);
+app.post('/api/weight/log',    authMiddleware, logWeight);
+app.get('/api/weight/history', authMiddleware, getWeightHistory);
 
 // =============================================
 // HEALTH CHECK
 // =============================================
 app.get('/api/health', (req, res) => {
   res.status(200).json({
-    success: true,
-    message: 'Fitness Tracker API is running! 🏋️',
+    success:   true,
+    message:   'Fitness Tracker API is running! 🏋️',
     timestamp: new Date().toISOString(),
   });
 });
