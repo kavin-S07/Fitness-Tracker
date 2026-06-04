@@ -103,9 +103,8 @@ const getTodayFood = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error.' });
   }
 };
-
 // ============================================
-// GET /api/food/history
+// GET /api/food/history  –  ALL history (no 30-day limit)
 // ============================================
 const getFoodHistory = async (req, res) => {
   try {
@@ -116,13 +115,14 @@ const getFoodHistory = async (req, res) => {
         ROUND(SUM(protein)::numeric, 2)  AS total_protein,
         COUNT(*) AS food_count
        FROM foods
-       WHERE user_id = $1 AND date >= NOW() - INTERVAL '30 days'
-       GROUP BY date ORDER BY date DESC`,
+       WHERE user_id = $1
+       GROUP BY date
+       ORDER BY date DESC`,               // 👈 removed INTERVAL '30 days'
       [req.user.id]
     );
 
     const history = result.rows.map((row) => ({
-      date: row.date,
+      date: row.date,                     // PostgreSQL DATE → string 'YYYY-MM-DD'
       total_calories: Math.round(parseFloat(row.total_calories) || 0),
       total_protein: Math.round(parseFloat(row.total_protein) || 0),
       food_count: parseInt(row.food_count) || 0,
@@ -136,20 +136,10 @@ const getFoodHistory = async (req, res) => {
 };
 
 // ============================================
-// GET /api/food/date/:date
-// BUG FIX: Frontend (FoodPage) reads:
-//   - res.data.foods        → flat array for category grouping
-//   - res.data.summary      → object with calorie_target, protein_target, etc.
-// Old response had:
-//   - foods_by_meal (grouped object) instead of flat foods array
-//   - totals instead of summary, and different key names inside
-// Fixed: return both `foods` (flat) and `summary` with correct key names.
-// Also normalise food `category` field so frontend filter works correctly
-// (DB stores meal_type lowercase; frontend compares against capitalised category).
+// GET /api/food/date/:date  –  ensure summary keys match frontend
 // ============================================
 const getFoodByDate = async (req, res) => {
   const { date } = req.params;
-
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     return res.status(400).json({ success: false, message: 'Invalid date format. Use YYYY-MM-DD.' });
   }
@@ -177,25 +167,20 @@ const getFoodByDate = async (req, res) => {
       { total_calories: 0, total_protein: 0 }
     );
 
-    // BUG FIX: Expose each row's meal_type as `category` so FoodPage's
-    // filter (f.category?.toLowerCase() === cat.toLowerCase()) matches.
     const foods = result.rows.map(row => ({
       ...row,
       calories: parseFloat(row.calories),
       protein: parseFloat(row.protein),
       carbs: parseFloat(row.carbs) || 0,
       fats: parseFloat(row.fats) || 0,
-      // frontend uses `category` for grouping; DB column is `meal_type`
-      category: row.meal_type,
+      category: row.meal_type,           // frontend uses `category`
     }));
 
     res.status(200).json({
       success: true,
       date,
       foods,
-      // BUG FIX: `summary` key with calorie_target/protein_target names
-      // that FoodPage expects (was `totals` with different keys before)
-      summary: {
+      summary: {                          // ✅ exact keys needed by FoodPage
         total_calories: Math.round(totals.total_calories),
         total_protein: Math.round(totals.total_protein),
         calorie_target: calorieTarget,
@@ -203,18 +188,12 @@ const getFoodByDate = async (req, res) => {
         remaining_calories: Math.round(calorieTarget - totals.total_calories),
         remaining_protein: Math.round(proteinTarget - totals.total_protein),
       },
-      // keep old key for any other callers
-      totals: {
-        total_calories: Math.round(totals.total_calories),
-        total_protein: Math.round(totals.total_protein),
-      },
     });
   } catch (err) {
     console.error('Get food by date error:', err);
     res.status(500).json({ success: false, message: 'Server error.' });
   }
 };
-
 // ============================================
 // DELETE /api/food/:id
 // ============================================
