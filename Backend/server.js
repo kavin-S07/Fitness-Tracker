@@ -31,7 +31,8 @@ const otpRoutes       = require('./routes/otpRoutes');
 
 // ── Public routes (no auth) ──────────────────
 app.use('/api/auth',     authRoutes);
-app.use('/api/otp',      otpRoutes);
+app.use('/api/otp', require('./routes/otpRoutes'));
+
 
 // ── Feature routes ───────────────────────────
 app.use('/api/food',     foodRoutes);
