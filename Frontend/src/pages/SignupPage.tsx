@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 
 // ── Config ───────────────────────────────────────────────────
 // OTP server runs on port 5001 (separate from the main API on 5000)
-const OTP_SERVER = 'http://localhost:5000/api/otp';
+const OTP_SERVER = process.env.REACT_APP_OTP_URL;
 
 interface FormData {
   name: string; email: string; password: string;
