@@ -2,41 +2,30 @@
 // routes/otpRoutes.js
 // Mount in server.js:  app.use('/api/otp', require('./routes/otpRoutes'));
 // Frontend env:        REACT_APP_OTP_URL=https://your-backend.com/api/otp
+//
+// Email provider: Resend (https://resend.com)
+//   - Uses HTTPS (port 443) — works on ALL cloud hosts including Render free tier
+//   - Free tier: 3,000 emails/month, 100/day
+//   - Required env var: RESEND_API_KEY
+//   - FROM address: set RESEND_FROM in env, e.g. "FitnessTracker <onboarding@resend.dev>"
+//     (use onboarding@resend.dev for testing; add your own domain later for production)
 // ============================================================
-const express    = require('express');
-const nodemailer = require('nodemailer');
-const bcrypt     = require('bcryptjs');
-const router     = express.Router();
+const express = require('express');
+const { Resend } = require('resend');
+const router  = express.Router();
 
 // In-memory OTP store: { email -> { otp, expiresAt } }
 const otpStore = {};
 
-// ── Nodemailer transporter ────────────────────────────────────
-const dns = require("dns");
+// ── Resend client ─────────────────────────────────────────────
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-  dnsLookup: (hostname, options, callback) => {
-    return dns.lookup(hostname, { family: 4 }, callback);
-  }
-});
-
-transporter.verify((error) => {
-  if (error) {
-    console.error('❌ OTP SMTP Error:', error.message);
-  } else {
-    console.log('✅ OTP SMTP Ready');
-  }
-});
+// Startup check — confirms the key is present
+if (!process.env.RESEND_API_KEY) {
+  console.error('❌ OTP Email Error: RESEND_API_KEY is not set in environment variables.');
+} else {
+  console.log('✅ OTP Email Ready (Resend)');
+}
 
 // ── POST /api/otp/send-otp ────────────────────────────────────
 router.post('/send-otp', async (req, res) => {
@@ -60,9 +49,11 @@ router.post('/send-otp', async (req, res) => {
 
     console.log(`[OTP] Sending to ${email} → ${otp}`);
 
-    await transporter.sendMail({
-      from: `"FitnessTracker" <${process.env.EMAIL_USER}>`,
-      to:      email,
+    const fromAddress = process.env.RESEND_FROM || 'FitnessTracker <onboarding@resend.dev>';
+
+    const { error: sendError } = await resend.emails.send({
+      from:    fromAddress,
+      to:      [email],
       subject: 'Your FitnessTracker Verification Code',
       text:    `Your verification code is: ${otp}\n\nThis code expires in 10 minutes.\nDo not share it with anyone.`,
       html: `
@@ -84,6 +75,13 @@ router.post('/send-otp', async (req, res) => {
         </div>
       `,
     });
+
+    if (sendError) {
+      console.error('[OTP] Resend API error:', sendError.message);
+      // Clean up the stored OTP so the user can retry cleanly
+      delete otpStore[email];
+      return res.status(500).json({ success: false, message: 'Failed to send OTP. Please try again.' });
+    }
 
     return res.json({ success: true, message: 'OTP sent successfully.' });
 
