@@ -3,7 +3,7 @@
 // ============================================================
 import axios from 'axios';
 
-const BASE_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_OTP_URL;
+const BASE_URL = process.env.REACT_APP_API_URL;
 
 const api = axios.create({ baseURL: BASE_URL });
 
@@ -53,6 +53,17 @@ export const foodAPI = {
   getByDate: (date: string) => api.get(`/food/date/${date}`),
 
   getHistory: () => api.get('/food/history'),
+
+  updateFood: (id: string | number, data: {
+    food_name?: string; calories?: number; protein?: number;
+    category?: string; date?: string;
+  }) => api.put(`/food/${id}`, {
+    food_name: data.food_name,
+    calories: data.calories,
+    protein: data.protein,
+    meal_type: data.category?.toLowerCase(),
+    date: data.date,
+  }),
 
   deleteFood: (id: string | number) => api.delete(`/food/${id}`),
 };

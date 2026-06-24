@@ -31,12 +31,12 @@ interface DayDetail {
 // Constants
 // ------------------------------------------------------------------
 const CATEGORIES = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
-const CAT_ICONS: Record<string, string> = {
+const CAT_ICONS = Object.freeze({
   Breakfast: '🍳',
   Lunch: '🥗',
   Dinner: '🍽️',
   Snacks: '🥜',
-};
+} as const);
 const CAT_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
   Breakfast: { bg: 'rgba(234,108,0,0.08)', text: '#ea6c00', dot: '#ea6c00' },
   Lunch:     { bg: 'rgba(22,163,74,0.08)',  text: '#15803d', dot: '#16a34a' },
@@ -69,8 +69,10 @@ function formatDate(dateStr: string) {
       };
     }
   }
-  const d = new Date(dateStr);
-  return { day: '??', month: '???', year: 0, weekday: 'Invalid date', full: dateStr, iso: d.toISOString().split('T')[0] };
+  // Fallback: parse manually to avoid UTC timezone offset shifting the date
+  const parts2 = dateStr.replace(/T.*/, '').split('-');
+  const iso2 = parts2.length === 3 ? parts2.join('-') : dateStr.split('T')[0];
+  return { day: '??', month: '???', year: 0, weekday: 'Invalid date', full: dateStr, iso: iso2 };
 }
 
 // ------------------------------------------------------------------
@@ -133,9 +135,20 @@ const FoodPage: React.FC = () => {
     calories:  '',
     protein:   '',
     category:  'Breakfast',
+    date:      new Date().toISOString().split('T')[0],
   });
   const [addError,   setAddError]   = useState<string | null>(null);
   const [addLoading, setAddLoading] = useState(false);
+
+  // Edit food modal
+  const [editFood,     setEditFood]     = useState<FoodEntry | null>(null);
+  const [editForm,     setEditForm]     = useState({ food_name: '', calories: '', protein: '', category: '', date: '' });
+  const [editError,    setEditError]    = useState<string | null>(null);
+  const [editLoading,  setEditLoading]  = useState(false);
+
+  // Delete food
+  const [deleteId,      setDeleteId]      = useState<string | number | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // ------------------------------------------------------------------
   const loadHistory = useCallback(async () => {
@@ -167,10 +180,13 @@ const FoodPage: React.FC = () => {
         calories:  parseFloat(form.calories),
         protein:   parseFloat(form.protein),
         category:  form.category,
+        date:      form.date,
       });
       setShowForm(false);
-      setForm({ food_name: '', calories: '', protein: '', category: 'Breakfast' });
+      setForm({ food_name: '', calories: '', protein: '', category: 'Breakfast', date: new Date().toISOString().split('T')[0] });
       await loadHistory();
+      // If the add was triggered from a breakdown view, refresh detail
+      if (detailDate) await openDetail(detailDate);
     } catch (err: any) {
       setAddError(err?.response?.data?.message || err?.message || 'Failed to add food.');
     } finally {
@@ -184,9 +200,10 @@ const FoodPage: React.FC = () => {
     setDetailLoading(true);
     setExpandedCats({ Breakfast: true, Lunch: false, Dinner: false, Snacks: false });
     try {
-      const isoDate = formatDate(date).iso;
+      const isoDate = formatDate(date)?.iso;
+      if (!isoDate) { setDetail(null); return; }
       const res = await foodAPI.getByDate(isoDate);
-      setDetail({ foods: res.data.foods || [], summary: res.data.summary });
+      setDetail({ foods: res.data?.foods || [], summary: res.data?.summary || { total_calories: 0, total_protein: 0, calorie_target: 0, protein_target: 0, remaining_calories: 0, remaining_protein: 0 } });
     } catch {
       setDetail(null);
     } finally {
@@ -197,12 +214,69 @@ const FoodPage: React.FC = () => {
   const closeDetail    = () => { setDetailDate(null); setDetail(null); };
   const toggleCategory = (cat: string) => setExpandedCats(prev => ({ ...prev, [cat]: !prev[cat] }));
 
-  // ------------------------------------------------------------------
-  // Derived data
+  const openEdit = (food: FoodEntry) => {
+    setEditFood(food);
+    setEditForm({
+      food_name: food.food_name,
+      calories:  String(Math.round(food.calories)),
+      protein:   String(Math.round(food.protein)),
+      category:  food.category || food.meal_type || 'Breakfast',
+      date:      food.date,
+    });
+    setEditError(null);
+  };
+
+  const handleEditSave = async () => {
+    if (!editFood) return;
+    if (!editForm.food_name.trim())                     { setEditError('Food name is required.'); return; }
+    if (!editForm.calories || isNaN(Number(editForm.calories))) { setEditError('Enter a valid calorie amount.'); return; }
+    if (!editForm.protein  || isNaN(Number(editForm.protein)))  { setEditError('Enter a valid protein amount.'); return; }
+    setEditLoading(true);
+    setEditError(null);
+    try {
+      await foodAPI.updateFood(editFood.id, {
+        food_name: editForm.food_name.trim(),
+        calories:  parseFloat(editForm.calories),
+        protein:   parseFloat(editForm.protein),
+        category:  editForm.category,
+        date:      editForm.date,
+      });
+      setEditFood(null);
+      if (detailDate) openDetail(detailDate);
+      await loadHistory();
+    } catch (err: any) {
+      setEditError(err?.response?.data?.message || err?.message || 'Failed to update.');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string | number) => {
+    setDeleteLoading(true);
+    try {
+      await foodAPI.deleteFood(id);
+      setDeleteId(null);
+      if (detailDate) await openDetail(detailDate);
+      await loadHistory();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err?.message || 'Failed to delete.');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Open add modal pre-filled with breakdown date
+  const openAddForDate = (isoDate: string) => {
+    setAddError(null);
+    setForm({ food_name: '', calories: '', protein: '', category: 'Breakfast', date: isoDate });
+    setShowForm(true);
+  };
   // ------------------------------------------------------------------
   const sortedHistory = [...history].sort((a, b) => {
-    const da = new Date(a.date).getTime(), db = new Date(b.date).getTime();
-    return sort === 'latest' ? db - da : da - db;
+    // String compare: ISO YYYY-MM-DD sorts lexicographically, avoids UTC→local rollback (e.g. IST shifts Jun 8 → Jun 7)
+    const da = a.date.slice(0, 10);
+    const db = b.date.slice(0, 10);
+    return sort === 'latest' ? db.localeCompare(da) : da.localeCompare(db);
   });
 
   const filteredHistory = sortedHistory.filter((row) => {
@@ -272,7 +346,7 @@ const FoodPage: React.FC = () => {
         </div>
         <button
           className="btn-primary"
-          onClick={() => { setAddError(null); setForm({ food_name: '', calories: '', protein: '', category: 'Breakfast' }); setShowForm(true); }}
+          onClick={() => { setAddError(null); setForm({ food_name: '', calories: '', protein: '', category: 'Breakfast', date: new Date().toISOString().split('T')[0] }); setShowForm(true); }}
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', padding: '0.7rem 1.5rem', whiteSpace: 'nowrap' }}
         >
           <span style={{ fontSize: '1.3rem', lineHeight: 1 }}>+</span> Add Food
@@ -438,22 +512,22 @@ const FoodPage: React.FC = () => {
               <>
                 {/* Progress rings */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap', padding: '1rem 0 1.5rem', borderBottom: '1px solid rgba(0,0,0,0.07)', marginBottom: '1.5rem' }}>
-                  <ProgressRing value={detail.summary.total_calories} max={detail.summary.calorie_target} color="#ea6c00"
-                    label={`${detail.summary.total_calories.toLocaleString()} kcal`} sub={`of ${detail.summary.calorie_target.toLocaleString()} target`} />
-                  <ProgressRing value={detail.summary.total_protein} max={detail.summary.protein_target} color="#1d4ed8"
-                    label={`${detail.summary.total_protein}g protein`} sub={`of ${detail.summary.protein_target}g target`} />
+                  <ProgressRing value={detail.summary?.total_calories ?? 0} max={detail.summary?.calorie_target ?? 0} color="#ea6c00"
+                    label={`${(detail.summary?.total_calories ?? 0).toLocaleString()} kcal`} sub={`of ${(detail.summary?.calorie_target ?? 0).toLocaleString()} target`} />
+                  <ProgressRing value={detail.summary?.total_protein ?? 0} max={detail.summary?.protein_target ?? 0} color="#1d4ed8"
+                    label={`${detail.summary?.total_protein ?? 0}g protein`} sub={`of ${detail.summary?.protein_target ?? 0}g target`} />
                 </div>
 
                 {/* Summary 2×2 */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem' }}>
                   {[
-                    { label: 'Calories Consumed', value: `${detail.summary.total_calories.toLocaleString()} kcal`, icon: '🔥', color: '#ea6c00', bg: 'rgba(234,108,0,0.06)' },
-                    { label: 'Protein Consumed',  value: `${detail.summary.total_protein}g`,                       icon: '💪', color: '#1d4ed8', bg: 'rgba(29,78,216,0.06)' },
-                    { label: 'Calorie Target',    value: `${detail.summary.calorie_target.toLocaleString()} kcal`, icon: '🎯', color: '#475569', bg: 'rgba(0,0,0,0.03)' },
-                    { label: 'Remaining',         value: `${detail.summary.remaining_calories} kcal`,
-                      icon: detail.summary.remaining_calories < 0 ? '⚠️' : '✅',
-                      color: detail.summary.remaining_calories < 0 ? '#dc2626' : '#16a34a',
-                      bg:    detail.summary.remaining_calories < 0 ? 'rgba(220,38,38,0.06)' : 'rgba(22,163,74,0.06)' },
+                    { label: 'Calories Consumed', value: `${(detail.summary?.total_calories ?? 0).toLocaleString()} kcal`, icon: '🔥', color: '#ea6c00', bg: 'rgba(234,108,0,0.06)' },
+                    { label: 'Protein Consumed',  value: `${detail.summary?.total_protein ?? 0}g`,                       icon: '💪', color: '#1d4ed8', bg: 'rgba(29,78,216,0.06)' },
+                    { label: 'Calorie Target',    value: `${(detail.summary?.calorie_target ?? 0).toLocaleString()} kcal`, icon: '🎯', color: '#475569', bg: 'rgba(0,0,0,0.03)' },
+                    { label: 'Remaining',         value: `${detail.summary?.remaining_calories ?? 0} kcal`,
+                      icon: (detail.summary?.remaining_calories ?? 0) < 0 ? '⚠️' : '✅',
+                      color: (detail.summary?.remaining_calories ?? 0) < 0 ? '#dc2626' : '#16a34a',
+                      bg:    (detail.summary?.remaining_calories ?? 0) < 0 ? 'rgba(220,38,38,0.06)' : 'rgba(22,163,74,0.06)' },
                   ].map(s => (
                     <div key={s.label} style={{ background: s.bg, border: '1px solid rgba(0,0,0,0.07)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', marginBottom: '0.3rem' }}>
@@ -501,25 +575,35 @@ const FoodPage: React.FC = () => {
                               <p style={{ color: '#94a3b8', fontSize: '0.85rem', textAlign: 'center', padding: '0.5rem 0' }}>No items logged for {cat.toLowerCase()}</p>
                             ) : (
                               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                <thead>
-                                  <tr>
-                                    {['Food', 'Calories', 'Protein'].map(h => (
-                                      <th key={h} style={{ textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', paddingBottom: '0.4rem', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>{h}</th>
-                                    ))}
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {items.map(f => (
-                                    <tr key={f.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
-                                      <td style={{ padding: '0.5rem 0', fontSize: '0.88rem', color: '#0f172a', fontWeight: 500 }}>{f.food_name}</td>
-                                      <td style={{ color: '#ea6c00', fontWeight: 700, fontSize: '0.88rem' }}>{Math.round(f.calories)} kcal</td>
-                                      <td style={{ color: '#1d4ed8', fontWeight: 700, fontSize: '0.88rem' }}>{Math.round(f.protein)}g</td>
+                                  <thead>
+                                    <tr>
+                                      {['Food', 'Calories', 'Protein', ''].map(h => (
+                                        <th key={h} style={{ textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', paddingBottom: '0.4rem', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>{h}</th>
+                                      ))}
                                     </tr>
-                                  ))}
+                                </thead>
+                                  <tbody>
+                                    {items.map(f => (
+                                      <tr key={f.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+                                        <td style={{ padding: '0.5rem 0', fontSize: '0.88rem', color: '#0f172a', fontWeight: 500 }}>{f.food_name}</td>
+                                        <td style={{ color: '#ea6c00', fontWeight: 700, fontSize: '0.88rem' }}>{Math.round(f.calories)} kcal</td>
+                                        <td style={{ color: '#1d4ed8', fontWeight: 700, fontSize: '0.88rem' }}>{Math.round(f.protein)}g</td>
+                                        <td style={{ padding: '0.5rem 0', textAlign: 'right' }}>
+                                          <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                                            <button className="btn-secondary" style={{ padding: '0.25rem 0.6rem', fontSize: '0.72rem' }} onClick={() => openEdit(f)}>✏️ Edit</button>
+                                            <button
+                                              style={{ padding: '0.25rem 0.6rem', fontSize: '0.72rem', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)', borderRadius: '6px', color: '#dc2626', cursor: 'pointer', fontWeight: 600, fontFamily: 'Nunito, sans-serif' }}
+                                              onClick={() => setDeleteId(f.id)}
+                                            >🗑️</button>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    ))}
                                   <tr>
                                     <td style={{ paddingTop: '0.5rem', fontWeight: 800, fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#475569' }}>Total</td>
                                     <td style={{ color: '#16a34a', fontWeight: 800, paddingTop: '0.5rem' }}>{catCals} kcal</td>
                                     <td style={{ color: '#1d4ed8', fontWeight: 800, paddingTop: '0.5rem' }}>{catPro}g</td>
+                                    <td></td>
                                   </tr>
                                 </tbody>
                               </table>
@@ -532,7 +616,7 @@ const FoodPage: React.FC = () => {
                 </div>
 
                 {/* Footer */}
-                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', flexWrap: 'wrap' }}>
                   <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
                     onClick={() => {
                       const rows: (string | number)[][] = [
@@ -549,7 +633,17 @@ const FoodPage: React.FC = () => {
                       a.href = url; a.download = `food-report-${detailDate ? formatDate(detailDate).iso : 'export'}.csv`; a.click();
                       URL.revokeObjectURL(url);
                     }}>⬇ Export CSV</button>
-                  <button className="btn-primary" onClick={closeDetail} style={{ flex: 1 }}>Close</button>
+                  <button
+                    className="btn-primary"
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'linear-gradient(135deg,#16a34a,#15803d)' }}
+                    onClick={() => {
+                      const isoDate = detailDate ? formatDate(detailDate).iso : new Date().toISOString().split('T')[0];
+                      openAddForDate(isoDate);
+                    }}
+                  >
+                    <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>+</span> Add Food
+                  </button>
+                  <button className="btn-secondary" onClick={closeDetail} style={{ flex: 1 }}>Close</button>
                 </div>
               </>
             ) : (
@@ -585,6 +679,15 @@ const FoodPage: React.FC = () => {
                   {CATEGORIES.map(c => <option key={c} value={c}>{CAT_ICONS[c]} {c}</option>)}
                 </select>
               </div>
+              <div>
+                <label className="form-label">Date</label>
+                <input
+                  className="input-field"
+                  type="date"
+                  value={form.date}
+                  onChange={e => setForm(p => ({ ...p, date: e.target.value }))}
+                />
+              </div>
               <div className="grid-2">
                 <div>
                   <label className="form-label">Calories (kcal)</label>
@@ -616,6 +719,89 @@ const FoodPage: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit Food Modal ── */}
+      {editFood && (
+        <div className="modal-overlay" onClick={() => setEditFood(null)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <h2>Edit Food</h2>
+            {editError && <div className="msg-error" style={{ marginBottom: '1rem' }}>{editError}</div>}
+            <form onSubmit={(e) => { e.preventDefault(); handleEditSave(); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label className="form-label">Food Name</label>
+                <input
+                  className="input-field"
+                  placeholder="e.g. Boiled Eggs"
+                  value={editForm.food_name}
+                  onChange={e => setEditForm(p => ({ ...p, food_name: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="form-label">Category</label>
+                <select
+                  className="input-field"
+                  value={editForm.category}
+                  onChange={e => setEditForm(p => ({ ...p, category: e.target.value }))}
+                >
+                  {CATEGORIES.map(c => <option key={c} value={c}>{CAT_ICONS[c]} {c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="form-label">Date</label>
+                <input
+                  className="input-field"
+                  type="date"
+                  value={editForm.date}
+                  onChange={e => setEditForm(p => ({ ...p, date: e.target.value }))}
+                />
+              </div>
+              <div className="grid-2">
+                <div>
+                  <label className="form-label">Calories (kcal)</label>
+                  <input className="input-field" type="number" placeholder="250" min="0"
+                    value={editForm.calories}
+                    onChange={e => setEditForm(p => ({ ...p, calories: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="form-label">Protein (g)</label>
+                  <input className="input-field" type="number" placeholder="20" min="0"
+                    value={editForm.protein}
+                    onChange={e => setEditForm(p => ({ ...p, protein: e.target.value }))} />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => setEditFood(null)}>Cancel</button>
+                <button type="submit" className="btn-primary" style={{ flex: 2 }} disabled={editLoading}>
+                  {editLoading ? 'Saving…' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete Confirmation Modal ── */}
+      {deleteId !== null && (
+        <div className="modal-overlay" onClick={() => setDeleteId(null)}>
+          <div className="modal-box" style={{ maxWidth: '400px', textAlign: 'center', padding: '2rem' }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🗑️</div>
+            <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.6rem', letterSpacing: '0.04em', marginBottom: '0.5rem' }}>Delete Food Entry?</h2>
+            <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              This will permanently remove this food entry from your log. This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setDeleteId(null)}>Cancel</button>
+              <button
+                style={{ flex: 1, padding: '0.65rem 1rem', background: '#dc2626', border: 'none', borderRadius: '10px', color: '#fff', fontWeight: 700, fontSize: '0.9rem', fontFamily: 'Nunito, sans-serif', cursor: deleteLoading ? 'not-allowed' : 'pointer', opacity: deleteLoading ? 0.7 : 1 }}
+                disabled={deleteLoading}
+                onClick={() => handleDelete(deleteId)}
+              >
+                {deleteLoading ? 'Deleting…' : 'Yes, Delete'}
+              </button>
+            </div>
           </div>
         </div>
       )}

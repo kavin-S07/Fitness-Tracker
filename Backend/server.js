@@ -27,19 +27,15 @@ const authRoutes      = require('./routes/authRoutes');
 const foodRoutes      = require('./routes/foodRoutes');
 const exerciseRoutes  = require('./routes/exerciseRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
-const otpRoutes       = require('./routes/otpRoutes');
 
 // ── Public routes (no auth) ──────────────────
 app.use('/api/auth',     authRoutes);
-app.use('/api/otp', require('./routes/otpRoutes'));
-
 
 // ── Feature routes ───────────────────────────
 app.use('/api/food',     foodRoutes);
 app.use('/api/exercise', exerciseRoutes);
 
 // ── Dashboard routes (mounted at specific paths, NOT bare /api) ──
-// This avoids the prefix-match problem where /api catches /api/otp/*
 const { getDashboard, getWeeklyReport, logWeight, getWeightHistory } = require('./controllers/dashboardController');
 const authMiddleware = require('./middleware/auth');
 

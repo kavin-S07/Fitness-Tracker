@@ -1,14 +1,10 @@
 // ============================================================
-// src/pages/SignupPage.tsx  –  4-step signup with OTP
+// src/pages/SignupPage.tsx  –  3-step signup
 // ============================================================
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-
-// ── Config ───────────────────────────────────────────────────
-// OTP server runs on port 5001 (separate from the main API on 5000)
-const OTP_SERVER = process.env.REACT_APP_OTP_URL;
 
 interface FormData {
   name: string; email: string; password: string;
@@ -29,13 +25,6 @@ const SignupPage: React.FC = () => {
   const [error, setError]     = useState('');
   const [loading, setLoading] = useState(false);
 
-  // OTP state
-  const [otp, setOtp]               = useState(['', '', '', '', '', '']);
-  const [otpSending, setOtpSending] = useState(false);
-  const [otpTimer, setOtpTimer]     = useState(0);
-  const [otpSuccess, setOtpSuccess] = useState(false);
-  const inputRefs                   = useRef<(HTMLInputElement | null)[]>([]);
-
   const [form, setForm] = useState<FormData>({
     name: '', email: '', password: '',
     age: '', gender: 'male', height: '', weight: '',
@@ -45,89 +34,10 @@ const SignupPage: React.FC = () => {
   const set = (key: keyof FormData, val: string | boolean) =>
     setForm((p) => ({ ...p, [key]: val }));
 
-  // ── OTP Timer countdown ──────────────────────────────────
-  useEffect(() => {
-    if (otpTimer <= 0) return;
-    const t = setTimeout(() => setOtpTimer(s => s - 1), 1000);
-    return () => clearTimeout(t);
-  }, [otpTimer]);
-
-  // ── Send OTP ──────────────────────────────────────────────
-  const sendOTP = async () => {
-    setError('');
-    setOtpSending(true);
-    try {
-      const res = await fetch(`${OTP_SERVER}/send-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email }),
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message || 'Failed to send OTP');
-      setOtpTimer(60);
-      setOtp(['', '', '', '', '', '']);
-      // Focus first box
-      setTimeout(() => inputRefs.current[0]?.focus(), 100);
-    } catch (err: any) {
-      setError(err.message || 'Could not send OTP. Check email and try again.');
-    } finally {
-      setOtpSending(false);
-    }
-  };
-
-  // Called when step 3 → step 4
-  const goToOTP = async () => {
-    setError('');
-    setOtpSending(true);
-    setStep(4);
-    // small delay so UI renders first
-    await new Promise(r => setTimeout(r, 150));
-    await sendOTP();
-  };
-
-  // ── OTP input handlers ────────────────────────────────────
-  const handleOtpChange = (idx: number, val: string) => {
-    if (!/^\d*$/.test(val)) return;
-    const next = [...otp];
-    next[idx] = val.slice(-1);
-    setOtp(next);
-    if (val && idx < 5) inputRefs.current[idx + 1]?.focus();
-  };
-
-  const handleOtpKeyDown = (idx: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !otp[idx] && idx > 0) {
-      inputRefs.current[idx - 1]?.focus();
-    }
-  };
-
-  const handleOtpPaste = (e: React.ClipboardEvent) => {
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    if (pasted.length === 6) {
-      setOtp(pasted.split(''));
-      inputRefs.current[5]?.focus();
-    }
-    e.preventDefault();
-  };
-
-  // ── Verify OTP + signup ───────────────────────────────────
-  const handleVerifyAndSignup = async () => {
-    const otpCode = otp.join('');
-    if (otpCode.length < 6) return setError('Enter all 6 digits');
+  const handleSignup = async () => {
     setError('');
     setLoading(true);
     try {
-      // 1. Verify OTP against OTP server
-      const verifyRes = await fetch(`${OTP_SERVER}/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, password: form.password, otp: otpCode }),
-      });
-      const verifyData = await verifyRes.json();
-      if (!verifyData.success) throw new Error(verifyData.message || 'Invalid OTP');
-
-      setOtpSuccess(true);
-
-      // 2. OTP verified → create account on the main backend
       await authAPI.signup({
         ...form,
         age: Number(form.age),
@@ -136,13 +46,10 @@ const SignupPage: React.FC = () => {
         target_weight: Number(form.target_weight),
         activity_level: Number(form.activity_level),
       });
-
-      // 3. Auto-login
       await login(form.email, form.password);
       navigate('/home');
     } catch (err: any) {
-      setOtpSuccess(false);
-      setError(err?.response?.data?.message || err.message || 'Verification failed. Try again.');
+      setError(err?.response?.data?.message || err?.message || 'Signup failed. Try again.');
     } finally {
       setLoading(false);
     }
@@ -152,12 +59,10 @@ const SignupPage: React.FC = () => {
     { label: 'Account', icon: '🔐' },
     { label: 'Body',    icon: '📏' },
     { label: 'Goal',    icon: '🎯' },
-    { label: 'Verify',  icon: '✉️'  },
   ];
 
   return (
-    <div style={styles.bg}>
-      <div style={styles.bgOverlay} />
+    <div style={styles.page}>
       <div style={styles.container} className="fade-in">
         {/* Logo */}
         <div style={styles.logoWrap}>
@@ -321,85 +226,12 @@ const SignupPage: React.FC = () => {
                 <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setStep(2)}>← Back</button>
                 <button
                   className="btn-primary" style={{ flex: 2 }}
-                  onClick={goToOTP}
-                  disabled={otpSending}
+                  onClick={handleSignup}
+                  disabled={loading}
                 >
-                  {otpSending ? 'Sending OTP...' : '📧 Verify Email →'}
+                  {loading ? 'Creating Account…' : '🚀 Create Account'}
                 </button>
               </div>
-            </div>
-          )}
-
-          {/* ── Step 4 – OTP Verification ────────────────────── */}
-          {step === 4 && (
-            <div style={styles.formGrid} className="fade-in">
-              <div style={styles.otpHeader}>
-                <div style={styles.otpIconWrap}>✉️</div>
-                <h2 style={styles.stepTitle}>Verify Email</h2>
-                <p style={styles.otpSubtitle}>
-                  We sent a 6-digit code to<br />
-                  <strong style={{ color: 'var(--green)' }}>{form.email}</strong>
-                </p>
-              </div>
-
-              {/* 6-box OTP input */}
-              <div style={styles.otpBoxRow} onPaste={handleOtpPaste}>
-                {otp.map((digit, idx) => (
-                  <input
-                    key={idx}
-                    ref={el => { inputRefs.current[idx] = el; }}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={e => handleOtpChange(idx, e.target.value)}
-                    onKeyDown={e => handleOtpKeyDown(idx, e)}
-                    style={{
-                      ...styles.otpBox,
-                      ...(digit ? styles.otpBoxFilled : {}),
-                      ...(otpSuccess ? styles.otpBoxSuccess : {}),
-                    }}
-                  />
-                ))}
-              </div>
-
-              {otpSuccess && (
-                <div style={styles.successBanner}>
-                  ✅ Email verified! Creating your account…
-                </div>
-              )}
-
-              <button
-                className="btn-primary"
-                onClick={handleVerifyAndSignup}
-                disabled={loading || otp.join('').length < 6}
-                style={{ marginTop: '0.25rem' }}
-              >
-                {loading ? 'Creating Account…' : '🚀 Confirm & Create Account'}
-              </button>
-
-              {/* Resend */}
-              <div style={styles.resendRow}>
-                {otpTimer > 0 ? (
-                  <span style={styles.timerText}>Resend OTP in <strong style={{ color: 'var(--green)' }}>{otpTimer}s</strong></span>
-                ) : (
-                  <button
-                    style={styles.resendBtn}
-                    onClick={sendOTP}
-                    disabled={otpSending}
-                  >
-                    {otpSending ? 'Sending…' : '↺ Resend OTP'}
-                  </button>
-                )}
-              </div>
-
-              <button
-                className="btn-secondary"
-                style={{ marginTop: '0rem' }}
-                onClick={() => { setStep(3); setOtp(['', '', '', '', '', '']); setError(''); }}
-              >
-                ← Change Email / Go Back
-              </button>
             </div>
           )}
 
@@ -414,9 +246,8 @@ const SignupPage: React.FC = () => {
 };
 
 const styles: Record<string, React.CSSProperties> = {
-  bg: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', backgroundImage: 'url(/image/background.png)', backgroundSize: 'cover', backgroundPosition: 'center' },
-  bgOverlay: { position: 'absolute', inset: 0, background: 'rgba(10,14,26,0.78)', backdropFilter: 'blur(2px)' },
-  container: { position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem', width: '100%', maxWidth: 480, padding: '1rem' },
+  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem' },
+  container: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem', width: '100%', maxWidth: 480 },
   logoWrap: { display: 'flex', alignItems: 'center', gap: '0.75rem' },
   logo: { width: 48, height: 48, objectFit: 'contain' },
   appName: { fontFamily: 'var(--font-display)', fontSize: '1.8rem', letterSpacing: '0.05em', color: 'var(--text-primary)' },
@@ -437,25 +268,6 @@ const styles: Record<string, React.CSSProperties> = {
   gymBtnActive: { border: '1px solid var(--green)', background: 'var(--green-dim)', color: 'var(--green)' },
   switchLink: { marginTop: '1.25rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.88rem' },
   link: { color: 'var(--green)', cursor: 'pointer', fontWeight: 700 },
-
-  // OTP-specific
-  otpHeader: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' },
-  otpIconWrap: { fontSize: '2.5rem', lineHeight: 1 },
-  otpSubtitle: { textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5 },
-  otpBoxRow: { display: 'flex', gap: '0.5rem', justifyContent: 'center', margin: '0.5rem 0' },
-  otpBox: {
-    width: 48, height: 56, textAlign: 'center', fontSize: '1.4rem', fontWeight: 700,
-    background: 'rgba(255,255,255,0.05)', border: '1.5px solid var(--border)',
-    borderRadius: 10, color: 'var(--text-primary)', outline: 'none',
-    caretColor: 'var(--green)', transition: 'border-color 0.15s, background 0.15s',
-    fontFamily: 'var(--font-display)',
-  } as React.CSSProperties,
-  otpBoxFilled: { borderColor: 'var(--green)', background: 'var(--green-dim)' } as React.CSSProperties,
-  otpBoxSuccess: { borderColor: '#22c55e', background: 'rgba(34,197,94,0.12)' } as React.CSSProperties,
-  successBanner: { textAlign: 'center', color: '#22c55e', fontSize: '0.9rem', fontWeight: 600, padding: '0.5rem', background: 'rgba(34,197,94,0.1)', borderRadius: 8, border: '1px solid rgba(34,197,94,0.25)' },
-  resendRow: { textAlign: 'center' as const },
-  timerText: { color: 'var(--text-muted)', fontSize: '0.85rem' },
-  resendBtn: { background: 'none', border: 'none', color: 'var(--green)', cursor: 'pointer', fontWeight: 700, fontSize: '0.88rem', padding: '0.25rem 0.5rem', borderRadius: 6, textDecoration: 'underline' },
 };
 
 export default SignupPage;

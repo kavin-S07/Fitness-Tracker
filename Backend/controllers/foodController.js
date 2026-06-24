@@ -110,7 +110,7 @@ const getFoodHistory = async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT 
-        date,
+        TO_CHAR(date, 'YYYY-MM-DD') AS date,
         ROUND(SUM(calories)::numeric, 2) AS total_calories,
         ROUND(SUM(protein)::numeric, 2)  AS total_protein,
         COUNT(*) AS food_count
@@ -169,6 +169,10 @@ const getFoodByDate = async (req, res) => {
 
     const foods = result.rows.map(row => ({
       ...row,
+      // Cast date to plain YYYY-MM-DD string to prevent pg driver timezone conversion
+      date: row.date instanceof Date
+        ? row.date.toISOString().split('T')[0]
+        : String(row.date).split('T')[0],
       calories: parseFloat(row.calories),
       protein: parseFloat(row.protein),
       carbs: parseFloat(row.carbs) || 0,
@@ -193,6 +197,54 @@ const getFoodByDate = async (req, res) => {
     console.error('Get food by date error:', err);
     res.status(500).json({ success: false, message: 'Server error.' });
   }
+};// ============================================
+// PUT /api/food/:id
+// ============================================
+const updateFood = async (req, res) => {
+  const { id } = req.params;
+  const { food_name, calories, protein, carbs, fats, category, meal_type, date } = req.body;
+  const rawMealType = meal_type || category || '';
+  const newMealType = rawMealType.toLowerCase();
+
+  try {
+    const existing = await pool.query(
+      'SELECT * FROM foods WHERE id = $1 AND user_id = $2',
+      [id, req.user.id]
+    );
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Food entry not found.' });
+    }
+
+    const current = existing.rows[0];
+    const result = await pool.query(
+      `UPDATE foods
+       SET food_name = $1, calories = $2, protein = $3,
+           carbs = $4, fats = $5, meal_type = $6, date = $7,
+           updated_at = NOW()
+       WHERE id = $8 AND user_id = $9
+       RETURNING *`,
+      [
+        food_name        ?? current.food_name,
+        parseFloat(calories) ?? parseFloat(current.calories),
+        parseFloat(protein)  ?? parseFloat(current.protein),
+        parseFloat(carbs)    ?? parseFloat(current.carbs),
+        parseFloat(fats)     ?? parseFloat(current.fats),
+        newMealType      || current.meal_type,
+        date             || current.date,
+        id,
+        req.user.id,
+      ]
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Food entry updated.',
+      food: result.rows[0],
+    });
+  } catch (err) {
+    console.error('Update food error:', err);
+    res.status(500).json({ success: false, message: 'Server error.' });
+  }
 };
 // ============================================
 // DELETE /api/food/:id
@@ -212,4 +264,5 @@ const deleteFood = async (req, res) => {
   }
 };
 
-module.exports = { addFood, getTodayFood, getFoodHistory, getFoodByDate, deleteFood };
+
+module.exports = { addFood, getTodayFood, getFoodHistory, getFoodByDate, updateFood, deleteFood };

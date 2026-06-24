@@ -28,17 +28,14 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div style={styles.bg}>
-      {/* Background image */}
-      <div style={styles.bgOverlay} />
-
+    <div style={styles.page}>
       <div style={styles.container} className="fade-in">
         {/* Logo */}
         <div style={styles.logoWrap}>
-  <img src="https://res.cloudinary.com/dw9kvnkkz/image/upload/v1780311049/logo_zfqzvd.png" alt="Fitness Tracker" style={styles.logo}
-    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-  <h1 style={styles.appName}>Fitness<span style={{ color: 'var(--green)' }}>Tracker</span></h1>
-</div>
+          <img src="https://res.cloudinary.com/dw9kvnkkz/image/upload/v1780311049/logo_zfqzvd.png" alt="Fitness Tracker" style={styles.logo}
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+          <h1 style={styles.appName}>Fitness<span style={{ color: 'var(--green)' }}>Tracker</span></h1>
+        </div>
 
         <div className="glass" style={styles.card}>
           <h2 style={styles.title}>Welcome Back</h2>
@@ -86,25 +83,16 @@ const LoginPage: React.FC = () => {
 };
 
 const styles: Record<string, React.CSSProperties> = {
-  bg: {
+  page: {
     minHeight: '100vh',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
-    backgroundImage: 'url(/image/background.png)',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-  },
-  bgOverlay: {
-    position: 'absolute', inset: 0,
-    background: 'rgba(10,14,26,0.75)',
-    backdropFilter: 'blur(2px)',
+    padding: '2rem 1rem',
   },
   container: {
-    position: 'relative', zIndex: 1,
     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem',
-    width: '100%', maxWidth: 420, padding: '1rem',
+    width: '100%', maxWidth: 420,
   },
   logoWrap: {
     display: 'flex', alignItems: 'center', gap: '0.75rem',

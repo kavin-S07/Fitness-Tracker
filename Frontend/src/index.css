@@ -152,7 +152,7 @@ body {
 
 select.input-field option { background: #ffffff; color: var(--text-primary); }
 
-/* ── Animations ─── (unchanged) ───────────────────────────── */
+/* ── Animations ───────────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -256,7 +256,7 @@ select.input-field option { background: #ffffff; color: var(--text-primary); }
 .section-title    { font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 0.04em; color: var(--text-primary); }
 .section-subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.2rem; }
 
-/* ── Grid layouts (unchanged) ─────────────────────────────── */
+/* ── Grid layouts ─────────────────────────────────────────── */
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
@@ -315,3 +315,10 @@ select.input-field option { background: #ffffff; color: var(--text-primary); }
   max-width: 1200px;
   margin: 0 auto;
 }
+
+@media (max-width: 768px) {
+  .page-wrap { padding: calc(var(--nav-h) + 1rem) 1rem 2rem; }
+}
+
+/* ── Floating action button ───────────────────────────────── */
+.fab { z-index: 100; }
