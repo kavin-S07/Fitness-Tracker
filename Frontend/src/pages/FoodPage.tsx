@@ -332,7 +332,7 @@ const FoodPage: React.FC = () => {
 
   // ------------------------------------------------------------------
   return (
-    <div style={{ padding: 'calc(68px + 1.5rem) 1.5rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
+    <div className="page-wrap">
 
       {/* ── Page header ── */}
       <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }} className="fade-in">
@@ -428,7 +428,7 @@ const FoodPage: React.FC = () => {
         ) : (
           <>
             {/* Column headers */}
-            <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 100px 100px 80px 120px', gap: '0.5rem', padding: '0 0.75rem 0.5rem', borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
+            <div className="fp-history-header">
               {['Date', 'Day', 'Calories', 'Protein', 'Items', ''].map(h => (
                 <div key={h} style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8' }}>{h}</div>
               ))}
@@ -440,15 +440,16 @@ const FoodPage: React.FC = () => {
                 return (
                   <div
                     key={row.date}
-                    style={{ display: 'grid', gridTemplateColumns: '80px 1fr 100px 100px 80px 120px', gap: '0.5rem', alignItems: 'center', padding: '0.65rem 0.75rem', background: 'rgba(248,250,252,0.6)', borderRadius: '10px', border: '1px solid rgba(0,0,0,0.05)', transition: 'background 0.15s, border-color 0.15s', cursor: 'default' }}
+                    className="fp-history-row"
+                    style={{ padding: '0.65rem 0.75rem', background: 'rgba(248,250,252,0.6)', borderRadius: '10px', border: '1px solid rgba(0,0,0,0.05)', transition: 'background 0.15s, border-color 0.15s', cursor: 'default' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(22,163,74,0.04)'; (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(22,163,74,0.2)'; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(248,250,252,0.6)'; (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(0,0,0,0.05)'; }}
                   >
-                    <div style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', padding: '0.3rem 0.4rem', textAlign: 'center', width: 'fit-content' }}>
+                    <div className="fp-date-cell" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', padding: '0.3rem 0.4rem', textAlign: 'center', width: 'fit-content' }}>
                       <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.4rem', lineHeight: 1, color: '#16a34a' }}>{d.day}</div>
                       <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.05em' }}>{d.month} {d.year}</div>
                     </div>
-                    <div>
+                    <div className="fp-day-cell">
                       <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#0f172a' }}>{d.weekday}</div>
                       <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{d.full}</div>
                     </div>
@@ -464,7 +465,7 @@ const FoodPage: React.FC = () => {
                       <span style={{ background: 'rgba(22,163,74,0.1)', color: '#15803d', borderRadius: '20px', padding: '0.2rem 0.6rem', fontSize: '0.82rem', fontWeight: 700 }}>{row.food_count}</span>
                       <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginTop: '0.1rem' }}>foods</div>
                     </div>
-                    <button onClick={() => openDetail(row.date)} className="btn-primary"
+                    <button onClick={() => openDetail(row.date)} className="btn-primary fp-action-cell"
                       style={{ padding: '0.4rem 0.9rem', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                       👁 Details
                     </button>
@@ -511,7 +512,7 @@ const FoodPage: React.FC = () => {
             ) : detail ? (
               <>
                 {/* Progress rings */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap', padding: '1rem 0 1.5rem', borderBottom: '1px solid rgba(0,0,0,0.07)', marginBottom: '1.5rem' }}>
+                <div className="fp-ring-row">
                   <ProgressRing value={detail.summary?.total_calories ?? 0} max={detail.summary?.calorie_target ?? 0} color="#ea6c00"
                     label={`${(detail.summary?.total_calories ?? 0).toLocaleString()} kcal`} sub={`of ${(detail.summary?.calorie_target ?? 0).toLocaleString()} target`} />
                   <ProgressRing value={detail.summary?.total_protein ?? 0} max={detail.summary?.protein_target ?? 0} color="#1d4ed8"
@@ -519,7 +520,7 @@ const FoodPage: React.FC = () => {
                 </div>
 
                 {/* Summary 2×2 */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                <div className="fp-summary-grid">
                   {[
                     { label: 'Calories Consumed', value: `${(detail.summary?.total_calories ?? 0).toLocaleString()} kcal`, icon: '🔥', color: '#ea6c00', bg: 'rgba(234,108,0,0.06)' },
                     { label: 'Protein Consumed',  value: `${detail.summary?.total_protein ?? 0}g`,                       icon: '💪', color: '#1d4ed8', bg: 'rgba(29,78,216,0.06)' },

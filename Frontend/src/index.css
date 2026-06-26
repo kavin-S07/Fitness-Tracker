@@ -322,3 +322,143 @@ select.input-field option { background: #ffffff; color: var(--text-primary); }
 
 /* ── Floating action button ───────────────────────────────── */
 .fab { z-index: 100; }
+
+/* ── Responsive utilities ──────────────────────────────────── */
+.mobile-show { display: none !important; }
+
+@media (max-width: 768px) {
+  .mobile-hide { display: none !important; }
+  .mobile-show { display: flex !important; }
+}
+
+@media (max-width: 600px) {
+  .modal-box { padding: 1.25rem !important; max-width: calc(100vw - 1rem) !important; }
+  .page-wrap { padding: calc(var(--nav-h) + 0.75rem) 0.75rem 1.5rem !important; }
+  .section-title { font-size: 1.4rem !important; }
+  .grid-2, .grid-3, .grid-4 { gap: 0.75rem !important; }
+  .stat-card { padding: 1rem !important; }
+  .stat-card .value { font-size: 1.5rem !important; }
+}
+
+@media (max-width: 400px) {
+  .modal-box { padding: 1rem !important; }
+  .page-wrap { padding: calc(var(--nav-h) + 0.5rem) 0.5rem 1rem !important; }
+}
+
+/* ── Navbar responsive classes ──────────────────────────────── */
+.nav-links-desktop { display: flex !important; }
+.nav-hamburger { display: none !important; }
+
+@media (max-width: 768px) {
+  .nav-links-desktop { display: none !important; }
+  .nav-hamburger { display: flex !important; }
+  .nav-user-mobile-hide { display: none !important; }
+}
+
+/* ── FoodPage history grid ─────────────────────────────────── */
+.fp-history-header,
+.fp-history-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 100px 100px 80px 120px;
+  gap: 0.5rem;
+  align-items: center;
+}
+.fp-history-header {
+  padding: 0 0.75rem 0.5rem;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+
+@media (max-width: 768px) {
+  .fp-history-header { display: none; }
+  .fp-history-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    padding: 0.75rem !important;
+  }
+  .fp-history-row .fp-date-cell { grid-column: 1 / -1; }
+  .fp-history-row .fp-day-cell { grid-column: 1 / -1; }
+  .fp-history-row .fp-action-cell { grid-column: 1 / -1; }
+}
+
+@media (max-width: 400px) {
+  .fp-history-row {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+}
+
+.fp-ring-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding: 1rem 0 1.5rem;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 600px) {
+  .fp-ring-row { gap: 1.5rem; }
+}
+
+.fp-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 600px) {
+  .fp-summary-grid { grid-template-columns: 1fr; }
+}
+
+/* ── LandingPage responsive ──────────────────────────────── */
+.lp-nav-desktop { display: flex !important; align-items: center; gap: 0.25rem; }
+.lp-actions-desktop { display: flex !important; align-items: center; gap: 0.5rem; }
+.lp-hamburger { display: none !important; }
+.lp-mobile-menu { display: none !important; }
+.lp-hero-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
+
+@media (max-width: 1024px) {
+  .lp-hero { flex-direction: column !important; text-align: center !important; padding: 6rem 1.5rem 3rem !important; gap: 2rem !important; }
+  .lp-hero-content { max-width: 100% !important; flex: none !important; }
+  .lp-hero-sub { margin-left: auto !important; margin-right: auto !important; }
+  .lp-hero-cta { justify-content: center !important; }
+  .lp-hero-card { width: 100% !important; max-width: 400px !important; }
+  .lp-hero-card-grid { max-width: 400px; margin-left: auto; margin-right: auto; }
+}
+
+@media (max-width: 768px) {
+  .lp-nav-desktop { display: none !important; }
+  .lp-actions-desktop { display: none !important; }
+  .lp-hamburger { display: flex !important; }
+  .lp-mobile-menu.open { display: flex !important; }
+  .lp-section { padding: 3rem 1.25rem !important; }
+  .lp-section-head { margin-bottom: 2rem !important; }
+  .lp-stats-bar { padding: 1.5rem 1.25rem !important; }
+  .lp-cta { padding: 3rem 1.25rem !important; }
+  .lp-hero-note { margin-top: 1rem; text-align: center; }
+}
+
+@media (max-width: 600px) {
+  .lp-hero { padding: 5.5rem 1rem 2.5rem !important; }
+  .lp-hero-h1 { font-size: clamp(2.2rem, 10vw, 3rem) !important; }
+  .lp-hero-sub { font-size: 0.95rem !important; }
+  .lp-hero-card { padding: 1.25rem !important; }
+  .lp-stats-inner { gap: 1rem !important; }
+  .lp-stat-val { font-size: 1.6rem !important; }
+  .lp-stat-label { font-size: 0.7rem !important; }
+  .lp-section-h2 { font-size: clamp(1.5rem, 6vw, 2rem) !important; }
+  .lp-section-desc { font-size: 0.9rem !important; }
+  .lp-features-grid { gap: 1rem !important; }
+  .lp-steps-grid { gap: 1rem !important; }
+  .lp-goals-grid { gap: 1rem !important; }
+  .lp-cta { padding: 3rem 1rem !important; }
+  .lp-cta-h2 { font-size: clamp(1.8rem, 8vw, 2.5rem) !important; }
+  .lp-cta-sub { font-size: 0.95rem !important; }
+  .lp-footer { padding: 1.5rem 1.25rem !important; }
+  .lp-footer-inner { flex-direction: column !important; text-align: center !important; }
+}
+
+@media (max-width: 400px) {
+  .lp-hero { padding: 5rem 0.75rem 2rem !important; gap: 1.5rem !important; }
+  .lp-stat-val { font-size: 1.3rem !important; }
+}

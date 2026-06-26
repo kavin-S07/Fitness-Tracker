@@ -14,6 +14,7 @@ export interface User {
   gym_status?: boolean;
   activity_level?: number;
   bmr?: number;
+  maintenance_calories?: number;
   daily_calories?: number;
   daily_protein?: number;
   target_weight?: number;
@@ -40,10 +41,14 @@ export interface DashboardToday {
 export interface DashboardUser {
   name: string;
   current_weight: number;
-  target_weight: number;
+  target_weight: number | null;
   goal: string;
   daily_calories_target: number;
   daily_protein_target: number;
+  bmr: number;
+  maintenance_calories: number;
+  bmi: number | null;
+  weight_remaining: number | null;
 }
 
 export interface WeeklyFoodEntry {
@@ -69,7 +74,6 @@ export interface FoodEntry {
   food_name: string;
   calories: number;
   protein: number;
-  // BUG FIX: backend exposes meal_type as `category` for frontend grouping
   category: string;
   meal_type?: string;
   date: string;
@@ -98,7 +102,6 @@ export interface Exercise {
   description?: string;
   equipment?: string;
   difficulty: string;
-  // BUG FIX: was named `muscle_group` but DB column is `target_muscle`
   target_muscle?: string;
   muscle_group?: string;
   image_url?: string;
@@ -116,8 +119,6 @@ export interface WorkoutLog {
   exercise_name: string;
   exercise_type: string;
   workout_date: string;
-  // BUG FIX: backend now returns one row per set, so reps/weight/sets
-  // are flat scalar fields on each WorkoutLog row, not a nested array.
   reps: number;
   weight: number;
   sets: number;
@@ -128,9 +129,11 @@ export interface WeeklyReport {
   week_summary: { start_date: string; end_date: string };
   nutrition: {
     avg_daily_calories: number;
-    avg_daily_protein: number;
+    avg_daily_deficit: number;
+    total_deficit: number;
     days_food_logged: number;
     calorie_target: number;
+    avg_daily_protein: number;
     protein_target: number;
   };
   workout: {
@@ -141,12 +144,61 @@ export interface WeeklyReport {
     missed_days: number;
   };
   weight: {
+    current_weight: number;
     start_weight: number;
     end_weight: number;
-    change: string | null;
-    target_weight: number;
+    change: number | null;
+    last_update_deficit: number | null;
+    after_update_deficit: number;
+    days_since_update: number;
+    estimated_weight: number | null;
+    target_weight: number | null;
     progress_status: string;
+    bmr: number;
+    maintenance_calories: number;
+    bmi: number | null;
   };
 }
 
 export type GoalType = 'weight_loss' | 'weight_gain' | 'maintain';
+
+export interface DailyTrackingDay {
+  date: string;
+  targetCalories: number;
+  consumedCalories: number;
+  remainingCalories: number;
+  actualDeficit: number;
+}
+
+export interface WeightHistoryRecord {
+  id: number;
+  week_start: string;
+  week_end: string;
+  old_weight: number;
+  new_weight: number;
+  weekly_calories: number;
+  weight_change: number;
+  goal: string;
+  created_at?: string;
+}
+
+export interface WeeklyProgress {
+  currentWeight: number;
+  targetWeight: number | null;
+  remainingWeight: number | null;
+  currentWeeklyDeficit: number;
+  lastWeekDeficit: number;
+  lastWeekWeightChange: number;
+  estimatedNextMonday: number | null;
+  // After-last-update fields
+  previousWeight: number | null;
+  lastUpdateDeficit: number | null;
+  lastUpdateWeightChange: number | null;
+  lastWeightUpdateDate: string | null;
+  afterUpdateDeficit: number;
+  daysSinceUpdate: number;
+  predictedWeight: number | null;
+  weightChange: number | null;
+  days: DailyTrackingDay[];
+  latestWeightHistory: WeightHistoryRecord | null;
+}

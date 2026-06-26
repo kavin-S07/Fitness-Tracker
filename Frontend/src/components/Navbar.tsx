@@ -24,7 +24,7 @@ const Navbar: React.FC = () => {
     <>
       <nav style={styles.nav}>
         {/* Brand */}
-        <div style={styles.brand} onClick={() => navigate('/home')}>
+        <div style={styles.brand} onClick={() => navigate('/')}>
           <div style={styles.brandIcon}>🏃</div>
           <span style={styles.brandText}>
             Fitness<span style={{ color: '#16a34a' }}>Tracker</span>
@@ -32,7 +32,7 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* Desktop links */}
-        <div style={styles.links}>
+        <div className="nav-links-desktop" style={styles.links}>
           {NAV_LINKS.map((l) => {
             const active = location.pathname === l.path;
             return (
@@ -51,13 +51,14 @@ const Navbar: React.FC = () => {
 
         {/* Right side */}
         <div style={styles.right}>
-          <span style={styles.userName}>Hi, {user?.name?.split(' ')[0]}</span>
-          <div style={styles.divider} />
-          <button style={styles.btnLogout} onClick={handleLogout}>
+          <span className="nav-user-mobile-hide" style={styles.userName}>Hi, {user?.name?.split(' ')[0]}</span>
+          <div className="nav-user-mobile-hide" style={styles.divider} />
+          <button className="nav-user-mobile-hide" style={styles.btnLogout} onClick={handleLogout}>
             Sign out
           </button>
           {/* Hamburger */}
           <button
+            className="nav-hamburger"
             style={styles.hamburger}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
@@ -134,10 +135,10 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 16,
   },
   brandText: {
-    fontFamily: '"DM Serif Display", Georgia, serif',
+    fontFamily: 'var(--font-display)',
     fontSize: '1.25rem',
     color: '#111',
-    letterSpacing: '0.01em',
+    letterSpacing: '0.04em',
   },
   links: {
     display: 'flex',
@@ -151,8 +152,8 @@ const styles: Record<string, React.CSSProperties> = {
     background: 'transparent',
     border: 'none',
     color: '#555',
-    fontFamily: '"DM Sans", sans-serif',
-    fontWeight: 500,
+    fontFamily: 'var(--font-body)',
+    fontWeight: 600,
     fontSize: '0.875rem',
     padding: '0.45rem 0.85rem',
     borderRadius: 8,
@@ -195,9 +196,9 @@ const styles: Record<string, React.CSSProperties> = {
     background: 'transparent',
     border: '0.5px solid rgba(0,0,0,0.18)',
     color: '#555',
-    fontFamily: '"DM Sans", sans-serif',
+    fontFamily: 'var(--font-body)',
     fontSize: '0.82rem',
-    fontWeight: 500,
+    fontWeight: 600,
     padding: '0.4rem 0.9rem',
     borderRadius: 8,
     cursor: 'pointer',
@@ -240,9 +241,9 @@ const styles: Record<string, React.CSSProperties> = {
     background: 'none',
     border: 'none',
     color: '#333',
-    fontFamily: '"DM Sans", sans-serif',
+    fontFamily: 'var(--font-body)',
     fontSize: '0.95rem',
-    fontWeight: 500,
+    fontWeight: 600,
     textAlign: 'left',
     padding: '0.7rem 1rem',
     borderRadius: 8,

@@ -64,7 +64,9 @@ const getTodayFood = async (req, res) => {
   const today = new Date().toISOString().split('T')[0];
   try {
     const foodResult = await pool.query(
-      `SELECT * FROM foods WHERE user_id = $1 AND date = $2 ORDER BY created_at ASC`,
+      `SELECT id, user_id, food_name, calories, protein, carbs, fats, quantity, unit, meal_type,
+              TO_CHAR(date, 'YYYY-MM-DD') AS date, created_at
+       FROM foods WHERE user_id = $1 AND date = $2 ORDER BY created_at ASC`,
       [req.user.id, today]
     );
 
@@ -146,7 +148,9 @@ const getFoodByDate = async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT * FROM foods WHERE user_id = $1 AND date = $2 ORDER BY meal_type, created_at`,
+      `SELECT id, user_id, food_name, calories, protein, carbs, fats, quantity, unit, meal_type,
+              TO_CHAR(date, 'YYYY-MM-DD') AS date, created_at
+       FROM foods WHERE user_id = $1 AND date = $2 ORDER BY meal_type, created_at`,
       [req.user.id, date]
     );
 
@@ -169,15 +173,12 @@ const getFoodByDate = async (req, res) => {
 
     const foods = result.rows.map(row => ({
       ...row,
-      // Cast date to plain YYYY-MM-DD string to prevent pg driver timezone conversion
-      date: row.date instanceof Date
-        ? row.date.toISOString().split('T')[0]
-        : String(row.date).split('T')[0],
+      // date is already 'YYYY-MM-DD' string from TO_CHAR — no conversion needed
       calories: parseFloat(row.calories),
-      protein: parseFloat(row.protein),
-      carbs: parseFloat(row.carbs) || 0,
-      fats: parseFloat(row.fats) || 0,
-      category: row.meal_type,           // frontend uses `category`
+      protein:  parseFloat(row.protein),
+      carbs:    parseFloat(row.carbs) || 0,
+      fats:     parseFloat(row.fats)  || 0,
+      category: row.meal_type,  // frontend uses `category`
     }));
 
     res.status(200).json({
@@ -219,18 +220,17 @@ const updateFood = async (req, res) => {
     const result = await pool.query(
       `UPDATE foods
        SET food_name = $1, calories = $2, protein = $3,
-           carbs = $4, fats = $5, meal_type = $6, date = $7,
-           updated_at = NOW()
+           carbs = $4, fats = $5, meal_type = $6, date = $7
        WHERE id = $8 AND user_id = $9
        RETURNING *`,
       [
-        food_name        ?? current.food_name,
-        parseFloat(calories) ?? parseFloat(current.calories),
-        parseFloat(protein)  ?? parseFloat(current.protein),
-        parseFloat(carbs)    ?? parseFloat(current.carbs),
-        parseFloat(fats)     ?? parseFloat(current.fats),
-        newMealType      || current.meal_type,
-        date             || current.date,
+        food_name       ?? current.food_name,
+        parseFloat(calories ?? current.calories),
+        parseFloat(protein  ?? current.protein),
+        parseFloat(carbs    ?? current.carbs),
+        parseFloat(fats     ?? current.fats),
+        newMealType     || current.meal_type,
+        date            || current.date,
         id,
         req.user.id,
       ]

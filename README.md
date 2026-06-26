@@ -42,12 +42,26 @@ FitnessTracker is a personalized fitness companion that calculates your daily ca
 - Weekly calorie and protein intake bar charts (powered by Recharts)
 - Weekly workout volume chart
 - Current weight vs. target weight display
+- **After Last Update Report**: previous weight, current weight, deficit since update, days since update, predicted weight
+
+### Calorie Deficit Tracking
+- Automatic daily log of calorie target, consumed, remaining, and actual deficit
+- `actual_deficit` tracks surplus/deficit relative to the daily target (already maintenance ± 500)
+- Weekly deficit summary with projected weight change (7700 kcal = 1 kg)
+- Backfill: missing `daily_calorie_tracking` rows are created on page load for any day that has food data
+- Zero-calorie row cleanup: phantom deficit rows for days with no food logged are deleted
+
+### Weight Updates
+- **Update Weight** button on Profile page: snapshots accumulated deficit into `weight_history`, recalculates BMR/maintenance/targets for the new weight, and resets the tracking cycle
+- Full maintenance deficit (actual_deficit + 500 per day) used for weight change calculations
+- After-update deficit counter shows deficit accumulated since last weight update
+- Estimated weight projection based on full maintenance deficit
 
 ### Food Tracker
 - Log meals with food name, calories, protein, carbs, fats, meal type (Breakfast / Lunch / Dinner / Snack), and date
 - View today's food log grouped by meal type
 - Browse food history by date
-- Delete individual food entries
+- Edit and delete individual food entries
 - Running daily totals for calories and protein
 
 ### Exercise / Gym Tracker
@@ -67,7 +81,8 @@ FitnessTracker is a personalized fitness companion that calculates your daily ca
 ### Weekly Report
 - 7-day nutrition summary: average daily calories and protein, days logged, vs. targets
 - 7-day workout summary: active days, total sets, muscle groups hit, strongest muscle group, missed days
-- Weight progress snapshot for the week
+- Weight progress snapshot for the week with deficit-based nutrition section (avg consumed, avg deficit, total weekly deficit)
+- Weight history section: current weight, last update change, deficit since update, estimated weight
 
 ---
 
@@ -116,7 +131,8 @@ Fittracker/
 │   │   ├── authController.js     # Signup, login, profile CRUD + BMR calc
 │   │   ├── dashboardController.js# Dashboard summary, weekly report, weight log
 │   │   ├── exerciseController.js # Exercise library + workout log CRUD
-│   │   └── foodController.js     # Food log CRUD
+│   │   ├── foodController.js     # Food log CRUD
+│   │   └── progressController.js # Daily calorie tracking, deficit tracking, weight updates
 │   ├── middleware/
 │   │   └── auth.js               # JWT verification middleware
 │   ├── models/
@@ -125,7 +141,8 @@ Fittracker/
 │   │   ├── authRoutes.js
 │   │   ├── dashboardRoutes.js
 │   │   ├── exerciseRoutes.js
-│   │   └── foodRoutes.js
+│   │   ├── foodRoutes.js
+│   │   └── progressRoutes.js
 │   ├── .env.example
 │   ├── package.json
 │   └── server.js                 # Express app entry point
@@ -164,7 +181,7 @@ Fittracker/
 
 ## Database Schema
 
-Five tables power the application:
+Seven tables power the application:
 
 **`users`** — Stores user profile, fitness metrics, and auto-calculated targets (BMR, daily calories, daily protein).
 
@@ -175,6 +192,10 @@ Five tables power the application:
 **`workout_logs`** — User workout entries: links a user to an exercise, with sets, reps, weight, and date.
 
 **`weight_logs`** — Daily body weight entries, one row per user per date (enforced by UNIQUE constraint).
+
+**`daily_calorie_tracking`** — Auto-generated daily rows tracking target, consumed, remaining, and actual deficit. One row per user per date (enforced by UNIQUE constraint). Populated by a daily cron job (23:59) and on-demand via backfill on dashboard load.
+
+**`weight_history`** — Snapshots created when the user clicks **Update Weight**: stores week range, old/new weight, accumulated calorie deficit, and weight change.
 
 Indexes are created on `(user_id, date)` for foods and workout_logs, and `exercise_type` for fast category filtering.
 
@@ -199,6 +220,7 @@ All endpoints are prefixed with `/api`. Protected endpoints require the `Authori
 | GET | `/today` | ✅ | Today's food log + daily totals |
 | GET | `/history` | ✅ | Full food history grouped by date |
 | GET | `/date/:date` | ✅ | Food log for a specific date (`YYYY-MM-DD`) |
+| PUT | `/:id` | ✅ | Edit a food entry |
 | DELETE | `/:id` | ✅ | Delete a food entry |
 
 ### Exercise — `/api/exercise`
@@ -220,6 +242,14 @@ All endpoints are prefixed with `/api`. Protected endpoints require the `Authori
 | GET | `/report/weekly` | ✅ | 7-day nutrition, workout, and weight report |
 | POST | `/weight/log` | ✅ | Log today's body weight |
 | GET | `/weight/history` | ✅ | Full weight log history |
+
+### Progress — `/api/progress`
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/weekly` | ✅ | Current week daily calorie tracking + last week summary + after-update report |
+| GET | `/history` | ✅ | Weight history (last 20 entries) |
+| POST | `/log-today` | ✅ | Manually log today's tracking row |
+| POST | `/apply-weekly` | ✅ | Apply accumulated deficit → calculate weight change, recalculate targets, save snapshot |
 
 ### Health Check
 ```
@@ -368,6 +398,27 @@ Exercise images stored as Google Drive sharing URLs (`/file/d/{ID}/view`) are no
 
 **JWT middleware mount conflict**  
 Applying `authMiddleware` globally via `router.use()` before public routes caused 401 errors on unauthenticated endpoints. Fixed by applying the middleware only to protected routes.
+
+**Double-counted built-in deficit**  
+The `actual_deficit` formula was adding `500 + remaining` for weight_loss, but the daily target already has a 500 kcal deficit (maintenance - 500). Fixed: `actual_deficit = remaining` (no extra +500). The +500 is added back only in weight-change calculations (7700 kcal/kg formula) via `+ 500 * days`.
+
+**Factor-100 frontend display bug**  
+The total deficit sum was being divided by 100 before rendering, showing +21 instead of +2103. Fixed by removing the spurious division.
+
+**Date timezone shifting**  
+PostgreSQL `DATE` columns returned as JS `Date` objects were serialised to UTC ISO strings, shifting dates by 1 day for non-UTC timezones. Fixed by using `TO_CHAR(date, 'YYYY-MM-DD') AS date` in all queries.
+
+**`NaN` in food UPDATE query**  
+The frontend edit payload omits `carbs`/`fats`, causing `parseFloat(undefined)` to return `NaN`. The `??` operator doesn't catch `NaN` (not nullish), so `NaN` was passed to SQL. Fixed by moving `??` before `parseFloat`: `parseFloat(carbs ?? current.carbs)`.
+
+**Missing `updated_at` column in `foods` table**  
+The `updateFood` query referenced `updated_at = NOW()`, but the `foods` table has no `updated_at` column. Fixed by removing the column reference from the UPDATE query.
+
+**Missing food history for days with no tracking entry**  
+The `daily_calorie_tracking` table could have gaps if the cron job failed. Fixed with a backfill loop in `getWeeklyProgress` that creates tracking rows for any day in the current week that has food data but no tracking entry.
+
+**Zero-calorie phantom deficit**  
+A tracking row with `consumed_calories = 0` created a phantom +target deficit (e.g. +1334) for today when no food was logged yet. Fixed by deleting stale zero-calorie rows in `logTodayForUser` when `consumed === 0`.
 
 ---
 

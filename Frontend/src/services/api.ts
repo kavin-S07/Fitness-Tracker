@@ -96,4 +96,12 @@ export const exerciseAPI = {
   deleteWorkout: (id: string | number) => api.delete(`/exercise/workout/${id}`),
 };
 
+// ── Progress / Deficit Tracking ───────────────────────────────
+export const progressAPI = {
+  weekly: () => api.get('/progress/weekly'),
+  history: () => api.get('/progress/history'),
+  logToday: () => api.post('/progress/log-today'),
+  applyWeekly: () => api.post('/progress/apply-weekly'),
+};
+
 export default api;

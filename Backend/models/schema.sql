@@ -120,3 +120,8 @@ UPDATE exercise SET image_url = 'https://drive.google.com/uc?export=view&id=1lCw
 UPDATE exercise SET image_url = 'https://drive.google.com/uc?export=view&id=1886YgN2iCIW3h3znjvqVT2N5mL7fU7hV' WHERE exercise_name = 'Dumbbell Press';
 UPDATE exercise SET image_url = 'https://drive.google.com/uc?export=view&id=1MFJc0I0Ny0Oj6iBJRwPPgxrlAb3HVUBM' WHERE exercise_name = 'Lateral Raise';
 UPDATE exercise SET image_url = 'https://drive.google.com/uc?export=view&id=1WKHEY5Sl0V1ody1NqfPGuSbZK4o-Lw0J' WHERE exercise_name = 'Upright Barbell Row';
+-- =============================================
+-- MIGRATION: Add maintenance_calories to users
+-- Run this if upgrading an existing database
+-- =============================================
+ALTER TABLE users ADD COLUMN IF NOT EXISTS maintenance_calories FLOAT;

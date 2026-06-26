@@ -13,12 +13,13 @@ import HomePage     from './pages/HomePage';
 import FoodPage     from './pages/FoodPage';
 import ExercisePage from './pages/ExercisePage';
 import ProfilePage  from './pages/ProfilePage';
+import LandingPage from './pages/LandingPage';
 
 const App: React.FC = () => {
 
   useEffect(() => {
     document.body.style.backgroundImage =
-      'linear-gradient(rgba(10,14,26,0.6), rgba(26, 26, 27, 0.6)), url(/image/background.png)';
+      'linear-gradient(rgba(249, 249, 249, 0.6), rgba(119, 151, 115, 0.6)), url(/image/background.png)';
     document.body.style.backgroundSize = 'cover';
     document.body.style.backgroundPosition = 'center';
     document.body.style.backgroundRepeat = 'no-repeat';
@@ -29,6 +30,11 @@ const App: React.FC = () => {
     <AuthProvider>
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
+          <Route path="/"       element={<LandingPage />} />
+          <Route path="/landing" element={<LandingPage />} />
+
+          // Change the default catch-all to land on "/" instead of "/login"
+          <Route path="*" element={<Navigate to="/" replace />} />
           {/* Public */}
           <Route path="/login"  element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
