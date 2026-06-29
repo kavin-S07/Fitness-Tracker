@@ -1,26 +1,27 @@
-const pool = require('../config/db');
+const { db } = require('../db');
+const { exercise, workoutLogs } = require('../db/schema');
+const { eq, and, sql } = require('drizzle-orm');
 
-// ============================================
-// GET /api/exercise/list
-// ============================================
 const getExercises = async (req, res) => {
   const { type } = req.query;
   try {
-    let query = 'SELECT * FROM exercise';
-    let params = [];
-    if (type) { query += ' WHERE exercise_type = $1'; params.push(type); }
-    query += ' ORDER BY exercise_type, exercise_name';
-    const result = await pool.query(query, params);
-    const grouped = result.rows.reduce((acc, ex) => {
+    let result;
+    if (type) {
+      result = await db.select().from(exercise).where(eq(exercise.exercise_type, type)).orderBy(exercise.exercise_type, exercise.exercise_name);
+    } else {
+      result = await db.select().from(exercise).orderBy(exercise.exercise_type, exercise.exercise_name);
+    }
+
+    const grouped = result.reduce((acc, ex) => {
       if (!acc[ex.exercise_type]) acc[ex.exercise_type] = [];
       acc[ex.exercise_type].push(ex);
       return acc;
     }, {});
+
     res.status(200).json({
       success: true,
-      total: result.rows.length,
-      // When type filter is present return flat array; otherwise grouped object
-      exercises: type ? result.rows : grouped,
+      total: result.length,
+      exercises: type ? result : grouped,
     });
   } catch (err) {
     console.error('Get exercises error:', err);
@@ -28,14 +29,11 @@ const getExercises = async (req, res) => {
   }
 };
 
-// ============================================
-// GET /api/exercise/categories
-// ============================================
 const getCategories = async (req, res) => {
   try {
-    const result = await pool.query(
-      'SELECT DISTINCT exercise_type FROM exercise ORDER BY exercise_type'
-    );
+    const result = await db.execute(sql`
+      SELECT DISTINCT exercise_type FROM exercise ORDER BY exercise_type
+    `);
     res.status(200).json({
       success: true,
       categories: result.rows.map((r) => r.exercise_type),
@@ -46,29 +44,19 @@ const getCategories = async (req, res) => {
   }
 };
 
-// ============================================
-// GET /api/exercise/:id
-// ============================================
 const getExerciseById = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query('SELECT * FROM exercise WHERE id = $1', [id]);
-    if (result.rows.length === 0)
+    const result = await db.select().from(exercise).where(eq(exercise.id, id));
+    if (result.length === 0)
       return res.status(404).json({ success: false, message: 'Exercise not found.' });
-    res.status(200).json({ success: true, exercise: result.rows[0] });
+    res.status(200).json({ success: true, exercise: result[0] });
   } catch (err) {
     console.error('Get exercise by id error:', err);
     res.status(500).json({ success: false, message: 'Server error.' });
   }
 };
 
-// ============================================
-// POST /api/exercise/workout/add
-//
-// Frontend sends an array of sets: [{set_number, reps, weight}]
-// Each set is inserted as its own workout_logs row (sets = 1).
-// Legacy scalar mode (sets/reps/weight as plain numbers) still supported.
-// ============================================
 const addWorkout = async (req, res) => {
   const { exercise_id, sets, reps, weight, workout_date, notes } = req.body;
 
@@ -80,18 +68,14 @@ const addWorkout = async (req, res) => {
   }
 
   try {
-    const exerciseCheck = await pool.query(
-      'SELECT id, exercise_name FROM exercise WHERE id = $1',
-      [exercise_id]
-    );
-    if (exerciseCheck.rows.length === 0) {
+    const exerciseCheck = await db.select({ id: exercise.id, exercise_name: exercise.exercise_name }).from(exercise).where(eq(exercise.id, exercise_id));
+    if (exerciseCheck.length === 0) {
       return res.status(404).json({ success: false, message: 'Exercise not found.' });
     }
 
     const logDate = workout_date || new Date().toISOString().split('T')[0];
-    const exerciseName = exerciseCheck.rows[0].exercise_name;
+    const exerciseName = exerciseCheck[0].exercise_name;
 
-    // ── Array-of-sets mode (ExercisePage frontend) ──────────────────────
     if (Array.isArray(sets)) {
       if (sets.length === 0) {
         return res.status(400).json({ success: false, message: 'sets array must not be empty.' });
@@ -106,12 +90,16 @@ const addWorkout = async (req, res) => {
 
       const inserted = [];
       for (const s of sets) {
-        const result = await pool.query(
-          `INSERT INTO workout_logs (user_id, exercise_id, sets, reps, weight, workout_date, notes)
-           VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-          [req.user.id, exercise_id, 1, parseInt(s.reps), parseFloat(s.weight), logDate, notes || null]
-        );
-        inserted.push(result.rows[0]);
+        const result = await db.insert(workoutLogs).values({
+          user_id: req.user.id,
+          exercise_id,
+          sets: 1,
+          reps: parseInt(s.reps),
+          weight: parseFloat(s.weight),
+          workout_date: logDate,
+          notes: notes || null,
+        }).returning();
+        inserted.push(result[0]);
       }
 
       return res.status(201).json({
@@ -121,7 +109,6 @@ const addWorkout = async (req, res) => {
       });
     }
 
-    // ── Scalar mode (direct API / legacy) ───────────────────────────────
     if (reps === undefined || weight === undefined) {
       return res.status(400).json({
         success: false,
@@ -135,24 +122,20 @@ const addWorkout = async (req, res) => {
       });
     }
 
-    const result = await pool.query(
-      `INSERT INTO workout_logs (user_id, exercise_id, sets, reps, weight, workout_date, notes)
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [
-        req.user.id,
-        exercise_id,
-        parseInt(sets),
-        parseInt(reps),
-        parseFloat(weight),
-        logDate,
-        notes || null,
-      ]
-    );
+    const result = await db.insert(workoutLogs).values({
+      user_id: req.user.id,
+      exercise_id,
+      sets: parseInt(sets),
+      reps: parseInt(reps),
+      weight: parseFloat(weight),
+      workout_date: logDate,
+      notes: notes || null,
+    }).returning();
 
     res.status(201).json({
       success: true,
       message: `Workout logged for ${exerciseName}!`,
-      workout: result.rows[0],
+      workout: result[0],
     });
   } catch (err) {
     console.error('Add workout error:', err);
@@ -160,17 +143,11 @@ const addWorkout = async (req, res) => {
   }
 };
 
-// ============================================
-// GET /api/exercise/workout/today
-//
-// Returns flat array under key "workouts" so ExercisePage can iterate it.
-// Also keeps "workout" key for backward compatibility.
-// ============================================
 const getTodayWorkout = async (req, res) => {
   const today = new Date().toISOString().split('T')[0];
   try {
-    const result = await pool.query(
-      `SELECT
+    const result = await db.execute(sql`
+      SELECT
         wl.id,
         wl.sets,
         wl.reps,
@@ -183,14 +160,12 @@ const getTodayWorkout = async (req, res) => {
         e.image_url,
         e.target_muscle,
         e.equipment
-       FROM workout_logs wl
-       JOIN exercise e ON wl.exercise_id = e.id
-       WHERE wl.user_id = $1 AND wl.workout_date = $2
-       ORDER BY e.exercise_type, e.exercise_name, wl.created_at`,
-      [req.user.id, today]
-    );
+      FROM workout_logs wl
+      JOIN exercise e ON wl.exercise_id = e.id
+      WHERE wl.user_id = ${req.user.id} AND wl.workout_date = ${today}
+      ORDER BY e.exercise_type, e.exercise_name, wl.created_at
+    `);
 
-    // Cast numeric DB fields to proper JS types
     const workouts = result.rows.map(log => ({
       ...log,
       sets:   parseInt(log.sets),
@@ -202,8 +177,8 @@ const getTodayWorkout = async (req, res) => {
       success:    true,
       date:       today,
       total_sets: workouts.length,
-      workouts,         // flat array — read by ExercisePage as res.data.workouts
-      workout: workouts, // backward compat alias
+      workouts,
+      workout: workouts,
     });
   } catch (err) {
     console.error('Get today workout error:', err);
@@ -211,25 +186,21 @@ const getTodayWorkout = async (req, res) => {
   }
 };
 
-// ============================================
-// GET /api/exercise/workout/history
-// ============================================
 const getWorkoutHistory = async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT
+    const result = await db.execute(sql`
+      SELECT
         wl.workout_date,
         STRING_AGG(DISTINCT e.exercise_type, ', ')  AS muscle_groups,
         COUNT(wl.id)::int                            AS total_entries,
         SUM(wl.sets)::int                            AS total_sets,
         COUNT(DISTINCT wl.exercise_id)::int          AS exercises_count
-       FROM workout_logs wl
-       JOIN exercise e ON wl.exercise_id = e.id
-       WHERE wl.user_id = $1 AND wl.workout_date >= NOW() - INTERVAL '30 days'
-       GROUP BY wl.workout_date
-       ORDER BY wl.workout_date DESC`,
-      [req.user.id]
-    );
+      FROM workout_logs wl
+      JOIN exercise e ON wl.exercise_id = e.id
+      WHERE wl.user_id = ${req.user.id} AND wl.workout_date >= NOW() - INTERVAL '30 days'
+      GROUP BY wl.workout_date
+      ORDER BY wl.workout_date DESC
+    `);
 
     res.status(200).json({ success: true, history: result.rows });
   } catch (err) {
@@ -238,35 +209,28 @@ const getWorkoutHistory = async (req, res) => {
   }
 };
 
-// ============================================
-// GET /api/exercise/workout/progress/:exercise_id
-// ============================================
 const getExerciseProgress = async (req, res) => {
   const { exercise_id } = req.params;
   try {
-    const exercise = await pool.query(
-      'SELECT exercise_name FROM exercise WHERE id = $1',
-      [exercise_id]
-    );
-    if (exercise.rows.length === 0)
+    const exerciseResult = await db.select({ exercise_name: exercise.exercise_name }).from(exercise).where(eq(exercise.id, exercise_id));
+    if (exerciseResult.length === 0)
       return res.status(404).json({ success: false, message: 'Exercise not found.' });
 
-    const result = await pool.query(
-      `SELECT
+    const result = await db.execute(sql`
+      SELECT
         workout_date,
         MAX(weight)::float            AS max_weight,
         SUM(sets)::int                AS total_sets,
         ROUND(AVG(reps)::numeric, 1)  AS avg_reps
-       FROM workout_logs
-       WHERE user_id = $1 AND exercise_id = $2
-       GROUP BY workout_date
-       ORDER BY workout_date ASC`,
-      [req.user.id, exercise_id]
-    );
+      FROM workout_logs
+      WHERE user_id = ${req.user.id} AND exercise_id = ${exercise_id}
+      GROUP BY workout_date
+      ORDER BY workout_date ASC
+    `);
 
     res.status(200).json({
       success:       true,
-      exercise_name: exercise.rows[0].exercise_name,
+      exercise_name: exerciseResult[0].exercise_name,
       progress:      result.rows,
     });
   } catch (err) {
@@ -275,17 +239,11 @@ const getExerciseProgress = async (req, res) => {
   }
 };
 
-// ============================================
-// DELETE /api/exercise/workout/:id
-// ============================================
 const deleteWorkout = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query(
-      'DELETE FROM workout_logs WHERE id = $1 AND user_id = $2 RETURNING id',
-      [id, req.user.id]
-    );
-    if (result.rows.length === 0)
+    const result = await db.delete(workoutLogs).where(and(eq(workoutLogs.id, id), eq(workoutLogs.user_id, req.user.id))).returning({ id: workoutLogs.id });
+    if (result.length === 0)
       return res.status(404).json({ success: false, message: 'Workout log not found.' });
     res.status(200).json({ success: true, message: 'Workout entry deleted.' });
   } catch (err) {
@@ -294,16 +252,11 @@ const deleteWorkout = async (req, res) => {
   }
 };
 
-
-// ============================================
-// GET /api/exercise/workout/all
-// Returns all workout logs for the user within last N days
-// ============================================
 const getAllWorkouts = async (req, res) => {
   const days = parseInt(req.query.days) || 90;
   try {
-    const result = await pool.query(
-      `SELECT
+    const result = await db.execute(sql`
+      SELECT
         wl.id,
         wl.sets,
         wl.reps,
@@ -315,12 +268,11 @@ const getAllWorkouts = async (req, res) => {
         e.exercise_type,
         e.target_muscle,
         e.equipment
-       FROM workout_logs wl
-       JOIN exercise e ON wl.exercise_id = e.id
-       WHERE wl.user_id = $1 AND wl.workout_date >= NOW() - INTERVAL '${days} days'
-       ORDER BY wl.workout_date DESC, wl.created_at ASC`,
-      [req.user.id]
-    );
+      FROM workout_logs wl
+      JOIN exercise e ON wl.exercise_id = e.id
+      WHERE wl.user_id = ${req.user.id} AND wl.workout_date >= NOW() - INTERVAL '1 day' * ${days}
+      ORDER BY wl.workout_date DESC, wl.created_at ASC
+    `);
 
     const workouts = result.rows.map(log => ({
       ...log,

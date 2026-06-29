@@ -341,128 +341,132 @@ const ExercisePage: React.FC = () => {
               <div className="spinner" />
             </div>
           ) : (
-            <div className="ep-panels">
-              {/* ── LEFT: Workout list ── */}
-              <div className="glass ep-list-panel">
-                <div className="ep-list-head">
-                  <span className="ep-panel-title">Workout History</span>
-                  <div className="ep-search-box">
-                    <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>🔍</span>
-                    <input
-                      type="text"
-                      placeholder="Search workouts..."
-                      value={searchQuery}
-                      onChange={e => setSearchQuery(e.target.value)}
-                      className="ep-search-input"
-                    />
+            <>
+              {/* ── TOP: Full-width Filter Bar ── */}
+              <div className="glass ep-filter-bar">
+                <div className="ep-filter-bar-section">
+                  <span className="ep-filter-bar-label">Filter by muscles</span>
+                  <div className="ep-filter-bar-chips">
+                    {(['All Muscles', ...categories]).map(cat => (
+                      <button
+                        key={cat}
+                        className={`ep-filter-chip${filterMuscle === cat ? ' ep-filter-chip--active' : ''}`}
+                        onClick={() => setFilterMuscle(cat)}
+                      >
+                        {cat}
+                      </button>
+                    ))}
                   </div>
                 </div>
-
-                {paginatedDays.length === 0 ? (
-                  <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                    <p>No workouts found.</p>
-                    <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => setActiveTab('library')}>
-                      Browse Exercises
-                    </button>
-                  </div>
-                ) : (
-                  paginatedDays.map((day, idx) => {
-                    const globalIdx = (currentPage - 1) * ITEMS_PER_PAGE + idx;
-                    const isActive = selectedDay?.date === day.date;
-                    return (
-                      <div
-                        key={day.date}
-                        className={`ep-wo-row${isActive ? ' ep-wo-row--active' : ''}`}
-                        onClick={() => setSelectedDay(day)}
+                <div className="ep-filter-bar-divider" />
+                <div className="ep-filter-bar-section">
+                  <span className="ep-filter-bar-label">Sort by</span>
+                  <div className="ep-filter-bar-chips">
+                    {(['newest', 'oldest'] as const).map(o => (
+                      <button
+                        key={o}
+                        className={`ep-filter-chip${sortOrder === o ? ' ep-filter-chip--active' : ''}`}
+                        onClick={() => setSortOrder(o)}
                       >
-                        <div className="ep-wo-icon" style={{ background: getIconBg(globalIdx) }}>
-                          <span style={{ fontSize: '1rem' }}>📅</span>
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div className="ep-wo-title">{getWorkoutTypeName(day.muscle_groups)}</div>
-                          <div className="ep-wo-date">{formatDate(day.date)}</div>
-                          <div className="ep-wo-chips">
-                            <span className="ep-chip">🏃 {day.exercises_count} Exercises</span>
-                            <span className="ep-chip">📊 {day.total_sets} Sets</span>
-                            {day.duration_min && <span className="ep-chip">⏱️ {day.duration_min} mins</span>}
-                            <span className="ep-chip">🏋️ {day.total_volume.toLocaleString()} kg</span>
-                          </div>
-                        </div>
-                        <button className="ep-view-btn" onClick={e => { e.stopPropagation(); setSelectedDay(day); }}>
-                          View Details ›
-                        </button>
-                      </div>
-                    );
-                  })
-                )}
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div className="ep-pager">
-                    <button
-                      className="ep-pg-btn"
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      ‹ Previous
-                    </button>
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      {getPageNumbers().map((p, i) =>
-                        p === '...' ? (
-                          <span key={`dots-${i}`} className="ep-pg-dots">...</span>
-                        ) : (
-                          <button
-                            key={p}
-                            className={`ep-pg-num${currentPage === p ? ' ep-pg-num--active' : ''}`}
-                            onClick={() => setCurrentPage(p as number)}
-                          >
-                            {p}
-                          </button>
-                        )
-                      )}
-                    </div>
-                    <button
-                      className="ep-pg-btn"
-                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages}
-                    >
-                      Next ›
-                    </button>
+                        {o === 'newest' ? '📅 Latest First' : '🕐 Oldest First'}
+                      </button>
+                    ))}
                   </div>
-                )}
+                </div>
               </div>
 
-              {/* ── MIDDLE: Filter sidebar ── */}
-              <div className="glass ep-filter-panel">
-                <div className="ep-filter-section-title">Filter by muscles</div>
-                {(['All Muscles', ...categories]).map(cat => (
-                  <button
-                    key={cat}
-                    className={`ep-filter-btn${filterMuscle === cat ? ' ep-filter-btn--active' : ''}`}
-                    onClick={() => setFilterMuscle(cat)}
-                  >
-                    <span style={{ flex: 1, textAlign: 'left' }}>{cat}</span>
-                    <span className={`ep-radio${filterMuscle === cat ? ' ep-radio--filled' : ''}`} />
-                  </button>
-                ))}
+              <div className="ep-panels">
+                {/* ── LEFT: Workout list ── */}
+                <div className="glass ep-list-panel">
+                  <div className="ep-list-head">
+                    <span className="ep-panel-title">Workout History</span>
+                    <div className="ep-search-box">
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>🔍</span>
+                      <input
+                        type="text"
+                        placeholder="Search workouts..."
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        className="ep-search-input"
+                      />
+                    </div>
+                  </div>
 
-                <div className="ep-filter-divider" />
-                <div className="ep-filter-section-title">Sort by</div>
-                {(['newest', 'oldest'] as const).map(o => (
-                  <button
-                    key={o}
-                    className={`ep-filter-btn${sortOrder === o ? ' ep-filter-btn--active' : ''}`}
-                    onClick={() => setSortOrder(o)}
-                  >
-                    <span style={{ flex: 1, textAlign: 'left' }}>
-                      {o === 'newest' ? 'Latest First' : 'Oldest First'}
-                    </span>
-                    <span className={`ep-radio${sortOrder === o ? ' ep-radio--filled' : ''}`} />
-                  </button>
-                ))}
-              </div>
+                  {paginatedDays.length === 0 ? (
+                    <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                      <p>No workouts found.</p>
+                      <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => setActiveTab('library')}>
+                        Browse Exercises
+                      </button>
+                    </div>
+                  ) : (
+                    paginatedDays.map((day, idx) => {
+                      const globalIdx = (currentPage - 1) * ITEMS_PER_PAGE + idx;
+                      const isActive = selectedDay?.date === day.date;
+                      return (
+                        <div
+                          key={day.date}
+                          className={`ep-wo-row${isActive ? ' ep-wo-row--active' : ''}`}
+                          onClick={() => setSelectedDay(day)}
+                        >
+                          <div className="ep-wo-icon" style={{ background: getIconBg(globalIdx) }}>
+                            <span style={{ fontSize: '1rem' }}>📅</span>
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div className="ep-wo-title">{getWorkoutTypeName(day.muscle_groups)}</div>
+                            <div className="ep-wo-date">{formatDate(day.date)}</div>
+                            <div className="ep-wo-chips">
+                              <span className="ep-chip">🏃 {day.exercises_count} Exercises</span>
+                              <span className="ep-chip">📊 {day.total_sets} Sets</span>
+                              {day.duration_min && <span className="ep-chip">⏱️ {day.duration_min} mins</span>}
+                              <span className="ep-chip">🏋️ {day.total_volume.toLocaleString()} kg</span>
+                            </div>
+                          </div>
+                          <button className="ep-view-btn" onClick={e => { e.stopPropagation(); setSelectedDay(day); }}>
+                            View Details ›
+                          </button>
+                        </div>
+                      );
+                    })
+                  )}
 
-              {/* ── RIGHT: Detail panel ── */}
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="ep-pager">
+                      <button
+                        className="ep-pg-btn"
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        ‹ Previous
+                      </button>
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        {getPageNumbers().map((p, i) =>
+                          p === '...' ? (
+                            <span key={`dots-${i}`} className="ep-pg-dots">...</span>
+                          ) : (
+                            <button
+                              key={p}
+                              className={`ep-pg-num${currentPage === p ? ' ep-pg-num--active' : ''}`}
+                              onClick={() => setCurrentPage(p as number)}
+                            >
+                              {p}
+                            </button>
+                          )
+                        )}
+                      </div>
+                      <button
+                        className="ep-pg-btn"
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                      >
+                        Next ›
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── RIGHT: Detail panel ── */}
               <div className="glass ep-detail-panel">
                 {!selectedDay ? (
                   <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
@@ -562,7 +566,7 @@ const ExercisePage: React.FC = () => {
                 )}
               </div>
             </div>
-          )}
+            </>          )}
 
           {/* FAB */}
           <button

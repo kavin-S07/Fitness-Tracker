@@ -75,7 +75,7 @@ app.use((err, req, res, next) => {
 // =============================================
 // START SERVER (after table creation)
 // =============================================
-const pool = require('./config/db');
+const { pool, db } = require('./db');
 const cron = require('node-cron');
 const { calculateMetrics } = require('./utils/metrics');
 const PORT = process.env.PORT || 5000;

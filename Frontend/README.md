@@ -46,15 +46,21 @@ npm install
 ### 3. Configure backend URL
 ```bash
 cp .env.example .env
-# Edit .env and set REACT_APP_API_URL=http://localhost:5000/api
+# Edit .env and set VITE_API_URL=http://localhost:5000/api
 ```
 
-### 4. Start the app
+### 4. Start the app (dev server)
 ```bash
-npm start
+npm run dev
 ```
 
 The app will open at **http://localhost:3000**
+
+### 5. Production build
+```bash
+npm run build   # outputs to dist/
+npm run preview # preview the production build locally
+```
 
 ## Pages & Routes
 

@@ -58,10 +58,79 @@
   margin-top: 2px;
 }
 
-/* ── 3-column panel grid ──────────────────────────────────── */
+/* ── Full-width filter bar ────────────────────────────────── */
+.ep-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: #ffffff;
+  border: 1px solid #e8edf2;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.ep-filter-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ep-filter-bar-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.ep-filter-bar-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ep-filter-chip {
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1px solid #e8edf2;
+  background: #fff;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.ep-filter-chip:hover {
+  border-color: var(--green);
+  color: var(--green);
+  background: #f0fdf4;
+}
+
+.ep-filter-chip--active {
+  border-color: var(--green);
+  background: var(--green);
+  color: #fff;
+}
+
+.ep-filter-bar-divider {
+  width: 1px;
+  height: 28px;
+  background: #e8edf2;
+  flex-shrink: 0;
+}
+
+/* ── 2-column panel grid ──────────────────────────────────── */
 .ep-panels {
   display: grid;
-  grid-template-columns: 1fr 220px 480px;
+  grid-template-columns: 1fr 460px;
   gap: 16px;
   align-items: start;
 }
@@ -706,7 +775,14 @@
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 1200px) {
   .ep-panels {
-    grid-template-columns: 1fr 200px;
+    grid-template-columns: 1fr 380px;
+  }
+  .ep-filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .ep-filter-bar-divider {
+    display: none;
   }
   .ep-detail-panel {
     grid-column: 1 / -1;
@@ -721,12 +797,17 @@
   .ep-panels {
     grid-template-columns: 1fr;
   }
-  .ep-filter-panel {
-    display: none;
+  .ep-filter-bar-section {
+    width: 100%;
   }
-  .ep-filter-mobile-bar {
-    display: flex;
+  .ep-filter-bar-chips {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
   }
+  .ep-filter-bar-chips::-webkit-scrollbar { display: none; }
   .ep-detail-panel {
     grid-column: 1;
     max-height: 600px;
