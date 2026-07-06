@@ -1,15 +1,9 @@
-const pool = require('../config/db');
+const { db } = require('../db');
+const { users, foods } = require('../db/schema');
+const { eq, and, sql } = require('drizzle-orm');
 
-// ============================================
-// POST /api/food/add
-// BUG FIX: Frontend sends `category` (capitalised e.g. "Breakfast").
-// Backend column is `meal_type` and validation expects lowercase.
-// Accept `meal_type` OR `category` and normalise to lowercase for the DB.
-// ============================================
 const addFood = async (req, res) => {
   const { food_name, calories, protein, carbs, fats, quantity, unit, date } = req.body;
-
-  // Accept either field name from the frontend
   const rawMealType = req.body.meal_type || req.body.category || '';
   const meal_type = rawMealType.toLowerCase();
 
@@ -28,28 +22,23 @@ const addFood = async (req, res) => {
   }
 
   try {
-    const result = await pool.query(
-      `INSERT INTO foods (user_id, food_name, calories, protein, carbs, fats, quantity, unit, meal_type, date)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-       RETURNING *`,
-      [
-        req.user.id,
-        food_name,
-        parseFloat(calories),
-        parseFloat(protein),
-        parseFloat(carbs) || 0,
-        parseFloat(fats) || 0,
-        parseFloat(quantity) || 1,
-        unit || 'g',
-        meal_type,
-        date || new Date().toISOString().split('T')[0],
-      ]
-    );
+    const result = await db.insert(foods).values({
+      user_id: req.user.id,
+      food_name,
+      calories: parseFloat(calories),
+      protein: parseFloat(protein),
+      carbs: parseFloat(carbs) || 0,
+      fats: parseFloat(fats) || 0,
+      quantity: parseFloat(quantity) || 1,
+      unit: unit || 'g',
+      meal_type,
+      date: date || new Date().toISOString().split('T')[0],
+    }).returning();
 
     res.status(201).json({
       success: true,
       message: 'Food added successfully!',
-      food: result.rows[0],
+      food: result[0],
     });
   } catch (err) {
     console.error('Add food error:', err);
@@ -57,20 +46,17 @@ const addFood = async (req, res) => {
   }
 };
 
-// ============================================
-// GET /api/food/today
-// ============================================
 const getTodayFood = async (req, res) => {
   const today = new Date().toISOString().split('T')[0];
   try {
-    const foodResult = await pool.query(
-      `SELECT id, user_id, food_name, calories, protein, carbs, fats, quantity, unit, meal_type,
-              TO_CHAR(date, 'YYYY-MM-DD') AS date, created_at
-       FROM foods WHERE user_id = $1 AND date = $2 ORDER BY created_at ASC`,
-      [req.user.id, today]
-    );
+    const foodResult = await db.execute(sql`
+      SELECT id, user_id, food_name, calories, protein, carbs, fats, quantity, unit, meal_type,
+             TO_CHAR(date, 'YYYY-MM-DD') AS date, created_at
+      FROM foods WHERE user_id = ${req.user.id} AND date = ${today} ORDER BY created_at ASC
+    `);
 
-    const totals = foodResult.rows.reduce(
+    const rows = foodResult.rows;
+    const totals = rows.reduce(
       (acc, food) => {
         acc.total_calories += parseFloat(food.calories) || 0;
         acc.total_protein += parseFloat(food.protein) || 0;
@@ -79,18 +65,19 @@ const getTodayFood = async (req, res) => {
       { total_calories: 0, total_protein: 0 }
     );
 
-    const userResult = await pool.query(
-      'SELECT daily_calories, daily_protein FROM users WHERE id = $1',
-      [req.user.id]
-    );
-    const targets = userResult.rows[0];
+    const userResult = await db.select({
+      daily_calories: users.daily_calories,
+      daily_protein: users.daily_protein,
+    }).from(users).where(eq(users.id, req.user.id));
+
+    const targets = userResult[0];
     const calorieTarget = Math.round(parseFloat(targets.daily_calories) || 0);
     const proteinTarget = Math.round(parseFloat(targets.daily_protein) || 0);
 
     res.status(200).json({
       success: true,
       date: today,
-      foods: foodResult.rows,
+      foods: rows,
       totals: {
         total_calories: Math.round(totals.total_calories),
         total_protein: Math.round(totals.total_protein),
@@ -105,26 +92,23 @@ const getTodayFood = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error.' });
   }
 };
-// ============================================
-// GET /api/food/history  –  ALL history (no 30-day limit)
-// ============================================
+
 const getFoodHistory = async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT 
+    const result = await db.execute(sql`
+      SELECT
         TO_CHAR(date, 'YYYY-MM-DD') AS date,
         ROUND(SUM(calories)::numeric, 2) AS total_calories,
         ROUND(SUM(protein)::numeric, 2)  AS total_protein,
         COUNT(*) AS food_count
-       FROM foods
-       WHERE user_id = $1
-       GROUP BY date
-       ORDER BY date DESC`,               // 👈 removed INTERVAL '30 days'
-      [req.user.id]
-    );
+      FROM foods
+      WHERE user_id = ${req.user.id}
+      GROUP BY date
+      ORDER BY date DESC
+    `);
 
     const history = result.rows.map((row) => ({
-      date: row.date,                     // PostgreSQL DATE → string 'YYYY-MM-DD'
+      date: row.date,
       total_calories: Math.round(parseFloat(row.total_calories) || 0),
       total_protein: Math.round(parseFloat(row.total_protein) || 0),
       food_count: parseInt(row.food_count) || 0,
@@ -137,9 +121,6 @@ const getFoodHistory = async (req, res) => {
   }
 };
 
-// ============================================
-// GET /api/food/date/:date  –  ensure summary keys match frontend
-// ============================================
 const getFoodByDate = async (req, res) => {
   const { date } = req.params;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -147,18 +128,18 @@ const getFoodByDate = async (req, res) => {
   }
 
   try {
-    const result = await pool.query(
-      `SELECT id, user_id, food_name, calories, protein, carbs, fats, quantity, unit, meal_type,
-              TO_CHAR(date, 'YYYY-MM-DD') AS date, created_at
-       FROM foods WHERE user_id = $1 AND date = $2 ORDER BY meal_type, created_at`,
-      [req.user.id, date]
-    );
+    const result = await db.execute(sql`
+      SELECT id, user_id, food_name, calories, protein, carbs, fats, quantity, unit, meal_type,
+             TO_CHAR(date, 'YYYY-MM-DD') AS date, created_at
+      FROM foods WHERE user_id = ${req.user.id} AND date = ${date} ORDER BY meal_type, created_at
+    `);
 
-    const userResult = await pool.query(
-      'SELECT daily_calories, daily_protein FROM users WHERE id = $1',
-      [req.user.id]
-    );
-    const targets = userResult.rows[0];
+    const userResult = await db.select({
+      daily_calories: users.daily_calories,
+      daily_protein: users.daily_protein,
+    }).from(users).where(eq(users.id, req.user.id));
+
+    const targets = userResult[0];
     const calorieTarget = Math.round(parseFloat(targets.daily_calories) || 0);
     const proteinTarget = Math.round(parseFloat(targets.daily_protein) || 0);
 
@@ -173,19 +154,18 @@ const getFoodByDate = async (req, res) => {
 
     const foods = result.rows.map(row => ({
       ...row,
-      // date is already 'YYYY-MM-DD' string from TO_CHAR — no conversion needed
       calories: parseFloat(row.calories),
       protein:  parseFloat(row.protein),
       carbs:    parseFloat(row.carbs) || 0,
       fats:     parseFloat(row.fats)  || 0,
-      category: row.meal_type,  // frontend uses `category`
+      category: row.meal_type,
     }));
 
     res.status(200).json({
       success: true,
       date,
       foods,
-      summary: {                          // ✅ exact keys needed by FoodPage
+      summary: {
         total_calories: Math.round(totals.total_calories),
         total_protein: Math.round(totals.total_protein),
         calorie_target: calorieTarget,
@@ -198,9 +178,8 @@ const getFoodByDate = async (req, res) => {
     console.error('Get food by date error:', err);
     res.status(500).json({ success: false, message: 'Server error.' });
   }
-};// ============================================
-// PUT /api/food/:id
-// ============================================
+};
+
 const updateFood = async (req, res) => {
   const { id } = req.params;
   const { food_name, calories, protein, carbs, fats, category, meal_type, date } = req.body;
@@ -208,61 +187,43 @@ const updateFood = async (req, res) => {
   const newMealType = rawMealType.toLowerCase();
 
   try {
-    const existing = await pool.query(
-      'SELECT * FROM foods WHERE id = $1 AND user_id = $2',
-      [id, req.user.id]
-    );
-    if (existing.rows.length === 0) {
+    const existing = await db.select().from(foods).where(and(eq(foods.id, id), eq(foods.user_id, req.user.id)));
+    if (existing.length === 0) {
       return res.status(404).json({ success: false, message: 'Food entry not found.' });
     }
 
-    const current = existing.rows[0];
-    const result = await pool.query(
-      `UPDATE foods
-       SET food_name = $1, calories = $2, protein = $3,
-           carbs = $4, fats = $5, meal_type = $6, date = $7
-       WHERE id = $8 AND user_id = $9
-       RETURNING *`,
-      [
-        food_name       ?? current.food_name,
-        parseFloat(calories ?? current.calories),
-        parseFloat(protein  ?? current.protein),
-        parseFloat(carbs    ?? current.carbs),
-        parseFloat(fats     ?? current.fats),
-        newMealType     || current.meal_type,
-        date            || current.date,
-        id,
-        req.user.id,
-      ]
-    );
+    const current = existing[0];
+    const result = await db.update(foods).set({
+      food_name: food_name       ?? current.food_name,
+      calories: parseFloat(calories ?? current.calories),
+      protein: parseFloat(protein  ?? current.protein),
+      carbs: parseFloat(carbs    ?? current.carbs),
+      fats: parseFloat(fats     ?? current.fats),
+      meal_type: newMealType     || current.meal_type,
+      date: date            || current.date,
+    }).where(and(eq(foods.id, id), eq(foods.user_id, req.user.id))).returning();
 
     res.status(200).json({
       success: true,
       message: 'Food entry updated.',
-      food: result.rows[0],
+      food: result[0],
     });
   } catch (err) {
     console.error('Update food error:', err);
     res.status(500).json({ success: false, message: 'Server error.' });
   }
 };
-// ============================================
-// DELETE /api/food/:id
-// ============================================
+
 const deleteFood = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query(
-      'DELETE FROM foods WHERE id = $1 AND user_id = $2 RETURNING id',
-      [id, req.user.id]
-    );
-    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'Food entry not found.' });
+    const result = await db.delete(foods).where(and(eq(foods.id, id), eq(foods.user_id, req.user.id))).returning({ id: foods.id });
+    if (result.length === 0) return res.status(404).json({ success: false, message: 'Food entry not found.' });
     res.status(200).json({ success: true, message: 'Food entry deleted.' });
   } catch (err) {
     console.error('Delete food error:', err);
     res.status(500).json({ success: false, message: 'Server error.' });
   }
 };
-
 
 module.exports = { addFood, getTodayFood, getFoodHistory, getFoodByDate, updateFood, deleteFood };

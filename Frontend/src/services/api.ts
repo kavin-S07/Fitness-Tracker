@@ -3,7 +3,7 @@
 // ============================================================
 import axios from 'axios';
 
-const BASE_URL = process.env.REACT_APP_API_URL;
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const api = axios.create({ baseURL: BASE_URL });
 
@@ -94,6 +94,12 @@ export const exerciseAPI = {
     api.get(`/exercise/workout/progress/${exercise_id}`),
 
   deleteWorkout: (id: string | number) => api.delete(`/exercise/workout/${id}`),
+};
+
+// ── Nutrition (Spoonacular) ──────────────────────────────────
+export const nutritionAPI = {
+  lookup: (food: string) =>
+    api.get('/nutrition', { params: { food } }),
 };
 
 // ── Progress / Deficit Tracking ───────────────────────────────
