@@ -31,12 +31,12 @@ interface DayDetail {
 // Constants
 // ------------------------------------------------------------------
 const CATEGORIES = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
-const CAT_ICONS = Object.freeze({
+const CAT_ICONS: Record<string, string> = {
   Breakfast: '🍳',
   Lunch: '🥗',
   Dinner: '🍽️',
   Snacks: '🥜',
-} as const);
+};
 const CAT_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
   Breakfast: { bg: 'rgba(234,108,0,0.08)', text: '#ea6c00', dot: '#ea6c00' },
   Lunch:     { bg: 'rgba(22,163,74,0.08)',  text: '#15803d', dot: '#16a34a' },
