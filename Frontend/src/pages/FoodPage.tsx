@@ -2,7 +2,7 @@
 // src/pages/FoodPage.tsx
 // ============================================================
 import React, { useEffect, useState, useCallback } from 'react';
-import { foodAPI } from '../services/api';
+import { foodAPI, nutritionAPI } from '../services/api';
 import { FoodEntry } from '../types';
 
 // ------------------------------------------------------------------
@@ -137,14 +137,18 @@ const FoodPage: React.FC = () => {
     category:  'Breakfast',
     date:      new Date().toISOString().split('T')[0],
   });
-  const [addError,   setAddError]   = useState<string | null>(null);
-  const [addLoading, setAddLoading] = useState(false);
+  const [addError,      setAddError]      = useState<string | null>(null);
+  const [addLoading,    setAddLoading]    = useState(false);
+  const [nutritionLoading, setNutritionLoading] = useState(false);
+  const [nutritionError,   setNutritionError]   = useState<string | null>(null);
 
   // Edit food modal
   const [editFood,     setEditFood]     = useState<FoodEntry | null>(null);
   const [editForm,     setEditForm]     = useState({ food_name: '', calories: '', protein: '', category: '', date: '' });
-  const [editError,    setEditError]    = useState<string | null>(null);
-  const [editLoading,  setEditLoading]  = useState(false);
+  const [editError,       setEditError]       = useState<string | null>(null);
+  const [editLoading,     setEditLoading]     = useState(false);
+  const [editNutritionLoading, setEditNutritionLoading] = useState(false);
+  const [editNutritionError,   setEditNutritionError]   = useState<string | null>(null);
 
   // Delete food
   const [deleteId,      setDeleteId]      = useState<string | number | null>(null);
@@ -165,6 +169,33 @@ const FoodPage: React.FC = () => {
   }, []);
 
   useEffect(() => { loadHistory(); }, [loadHistory]);
+
+  // Nutrition lookup for Add Food form
+  const handleNutritionLookup = async () => {
+    const food = form.food_name.trim();
+    if (!food) { setNutritionError('Enter a food name first.'); return; }
+    if (food.length < 3) { setNutritionError('Food name must be at least 3 characters.'); return; }
+    setNutritionLoading(true);
+    setNutritionError(null);
+    try {
+      const res = await nutritionAPI.lookup(food);
+      const data = res.data?.data;
+      if (data && data.calories != null) {
+        setForm(prev => ({
+          ...prev,
+          calories: String(Math.round(data.calories)),
+          protein: data.protein != null ? String(Math.round(data.protein)) : prev.protein,
+        }));
+      } else {
+        setNutritionError('Nutrition information is unavailable for this food.');
+      }
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || 'Lookup failed. Try again.';
+      setNutritionError(msg);
+    } finally {
+      setNutritionLoading(false);
+    }
+  };
 
   // Add food handler
   const handleAdd = async (e: React.FormEvent) => {
@@ -226,6 +257,33 @@ const FoodPage: React.FC = () => {
     setEditError(null);
   };
 
+  // Nutrition lookup for Edit Food form
+  const handleEditNutritionLookup = async () => {
+    const food = editForm.food_name.trim();
+    if (!food) { setEditNutritionError('Enter a food name first.'); return; }
+    if (food.length < 3) { setEditNutritionError('Food name must be at least 3 characters.'); return; }
+    setEditNutritionLoading(true);
+    setEditNutritionError(null);
+    try {
+      const res = await nutritionAPI.lookup(food);
+      const data = res.data?.data;
+      if (data && data.calories != null) {
+        setEditForm(prev => ({
+          ...prev,
+          calories: String(Math.round(data.calories)),
+          protein: data.protein != null ? String(Math.round(data.protein)) : prev.protein,
+        }));
+      } else {
+        setEditNutritionError('Nutrition information is unavailable for this food.');
+      }
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || 'Lookup failed. Try again.';
+      setEditNutritionError(msg);
+    } finally {
+      setEditNutritionLoading(false);
+    }
+  };
+
   const handleEditSave = async () => {
     if (!editFood) return;
     if (!editForm.food_name.trim())                     { setEditError('Food name is required.'); return; }
@@ -268,6 +326,7 @@ const FoodPage: React.FC = () => {
   // Open add modal pre-filled with breakdown date
   const openAddForDate = (isoDate: string) => {
     setAddError(null);
+    setNutritionError(null);
     setForm({ food_name: '', calories: '', protein: '', category: 'Breakfast', date: isoDate });
     setShowForm(true);
   };
@@ -663,12 +722,45 @@ const FoodPage: React.FC = () => {
             <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label className="form-label">Food Name</label>
-                <input
-                  className="input-field"
-                  placeholder="e.g. Boiled Eggs"
-                  value={form.food_name}
-                  onChange={e => setForm(p => ({ ...p, food_name: e.target.value }))}
-                />
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    className="input-field"
+                    placeholder="e.g. Chicken Biryani with 250g chicken"
+                    value={form.food_name}
+                    onChange={e => {
+                      setForm(p => ({ ...p, food_name: e.target.value }));
+                      setNutritionError(null);
+                    }}
+                    style={{ flex: 1 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleNutritionLookup}
+                    disabled={nutritionLoading}
+                    style={{
+                      padding: '0.6rem 1rem',
+                      background: nutritionLoading ? '#94a3b8' : '#6366f1',
+                      border: 'none',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontWeight: 600,
+                      fontSize: '0.82rem',
+                      fontFamily: 'Nunito, sans-serif',
+                      cursor: nutritionLoading ? 'not-allowed' : 'pointer',
+                      whiteSpace: 'nowrap',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                    }}
+                  >
+                    {nutritionLoading ? '⏳' : '🔍'} {nutritionLoading ? 'Looking up…' : 'Auto-fill'}
+                  </button>
+                </div>
+                {nutritionError && (
+                  <div style={{ color: '#dc2626', fontSize: '0.82rem', marginTop: '0.35rem' }}>
+                    {nutritionError}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="form-label">Category</label>
@@ -726,19 +818,52 @@ const FoodPage: React.FC = () => {
 
       {/* ── Edit Food Modal ── */}
       {editFood && (
-        <div className="modal-overlay" onClick={() => setEditFood(null)}>
+        <div className="modal-overlay" onClick={() => { setEditFood(null); setEditNutritionError(null); }}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <h2>Edit Food</h2>
             {editError && <div className="msg-error" style={{ marginBottom: '1rem' }}>{editError}</div>}
             <form onSubmit={(e) => { e.preventDefault(); handleEditSave(); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label className="form-label">Food Name</label>
-                <input
-                  className="input-field"
-                  placeholder="e.g. Boiled Eggs"
-                  value={editForm.food_name}
-                  onChange={e => setEditForm(p => ({ ...p, food_name: e.target.value }))}
-                />
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    className="input-field"
+                    placeholder="e.g. Boiled Eggs"
+                    value={editForm.food_name}
+                    onChange={e => {
+                      setEditForm(p => ({ ...p, food_name: e.target.value }));
+                      setEditNutritionError(null);
+                    }}
+                    style={{ flex: 1 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleEditNutritionLookup}
+                    disabled={editNutritionLoading}
+                    style={{
+                      padding: '0.6rem 1rem',
+                      background: editNutritionLoading ? '#94a3b8' : '#6366f1',
+                      border: 'none',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontWeight: 600,
+                      fontSize: '0.82rem',
+                      fontFamily: 'Nunito, sans-serif',
+                      cursor: editNutritionLoading ? 'not-allowed' : 'pointer',
+                      whiteSpace: 'nowrap',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                    }}
+                  >
+                    {editNutritionLoading ? '⏳' : '🔍'} {editNutritionLoading ? 'Looking up…' : 'Auto-fill'}
+                  </button>
+                </div>
+                {editNutritionError && (
+                  <div style={{ color: '#dc2626', fontSize: '0.82rem', marginTop: '0.35rem' }}>
+                    {editNutritionError}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="form-label">Category</label>
@@ -774,7 +899,7 @@ const FoodPage: React.FC = () => {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => setEditFood(null)}>Cancel</button>
+                <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => { setEditFood(null); setEditNutritionError(null); }}>Cancel</button>
                 <button type="submit" className="btn-primary" style={{ flex: 2 }} disabled={editLoading}>
                   {editLoading ? 'Saving…' : 'Save Changes'}
                 </button>

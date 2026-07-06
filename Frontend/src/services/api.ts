@@ -96,6 +96,12 @@ export const exerciseAPI = {
   deleteWorkout: (id: string | number) => api.delete(`/exercise/workout/${id}`),
 };
 
+// ── Nutrition (Spoonacular) ──────────────────────────────────
+export const nutritionAPI = {
+  lookup: (food: string) =>
+    api.get('/nutrition', { params: { food } }),
+};
+
 // ── Progress / Deficit Tracking ───────────────────────────────
 export const progressAPI = {
   weekly: () => api.get('/progress/weekly'),

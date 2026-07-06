@@ -32,6 +32,10 @@ app.use('/api/auth',     authRoutes);
 app.use('/api/food',     foodRoutes);
 app.use('/api/exercise', exerciseRoutes);
 
+// ── Nutrition (Spoonacular) ──────────────────────────────────
+const nutritionRoutes = require('./routes/nutritionRoutes');
+app.use('/api/nutrition', nutritionRoutes);
+
 // ── Dashboard / weight routes ─────────────────────────────────
 const {
   getDashboard, getWeeklyReport, logWeight, getWeightHistory,
