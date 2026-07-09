@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS foods (
   protein FLOAT NOT NULL,
   carbs FLOAT DEFAULT 0,
   fats FLOAT DEFAULT 0,
+  fiber FLOAT DEFAULT 0,
   quantity FLOAT DEFAULT 1,
   unit VARCHAR(20) DEFAULT 'g',
   meal_type VARCHAR(20),
@@ -125,3 +126,9 @@ UPDATE exercise SET image_url = 'https://drive.google.com/uc?export=view&id=1WKH
 -- Run this if upgrading an existing database
 -- =============================================
 ALTER TABLE users ADD COLUMN IF NOT EXISTS maintenance_calories FLOAT;
+
+-- =============================================
+-- MIGRATION: Add fiber to foods (nutrition auto-fill feature)
+-- Run this if upgrading an existing database
+-- =============================================
+ALTER TABLE foods ADD COLUMN IF NOT EXISTS fiber FLOAT DEFAULT 0;

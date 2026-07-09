@@ -7,7 +7,7 @@ const pool = require('../config/db');
 // Accept `meal_type` OR `category` and normalise to lowercase for the DB.
 // ============================================
 const addFood = async (req, res) => {
-  const { food_name, calories, protein, carbs, fats, quantity, unit, date } = req.body;
+  const { food_name, calories, protein, carbs, fats, fiber, quantity, unit, date } = req.body;
 
   // Accept either field name from the frontend
   const rawMealType = req.body.meal_type || req.body.category || '';
@@ -29,8 +29,8 @@ const addFood = async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO foods (user_id, food_name, calories, protein, carbs, fats, quantity, unit, meal_type, date)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+      `INSERT INTO foods (user_id, food_name, calories, protein, carbs, fats, fiber, quantity, unit, meal_type, date)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
        RETURNING *`,
       [
         req.user.id,
@@ -39,6 +39,7 @@ const addFood = async (req, res) => {
         parseFloat(protein),
         parseFloat(carbs) || 0,
         parseFloat(fats) || 0,
+        parseFloat(fiber) || 0,
         parseFloat(quantity) || 1,
         unit || 'g',
         meal_type,
@@ -64,7 +65,7 @@ const getTodayFood = async (req, res) => {
   const today = new Date().toISOString().split('T')[0];
   try {
     const foodResult = await pool.query(
-      `SELECT id, user_id, food_name, calories, protein, carbs, fats, quantity, unit, meal_type,
+      `SELECT id, user_id, food_name, calories, protein, carbs, fats, fiber, quantity, unit, meal_type,
               TO_CHAR(date, 'YYYY-MM-DD') AS date, created_at
        FROM foods WHERE user_id = $1 AND date = $2 ORDER BY created_at ASC`,
       [req.user.id, today]
@@ -87,15 +88,20 @@ const getTodayFood = async (req, res) => {
     const calorieTarget = Math.round(parseFloat(targets.daily_calories) || 0);
     const proteinTarget = Math.round(parseFloat(targets.daily_protein) || 0);
 
+    const foods = foodResult.rows.map(row => ({
+      ...row,
+      category: row.meal_type,
+    }));
+
     res.status(200).json({
       success: true,
       date: today,
-      foods: foodResult.rows,
-      totals: {
+      foods,
+      summary: {
         total_calories: Math.round(totals.total_calories),
         total_protein: Math.round(totals.total_protein),
-        target_calories: calorieTarget,
-        target_protein: proteinTarget,
+        calorie_target: calorieTarget,
+        protein_target: proteinTarget,
         remaining_calories: Math.round(calorieTarget - totals.total_calories),
         remaining_protein: Math.round(proteinTarget - totals.total_protein),
       },
@@ -148,7 +154,7 @@ const getFoodByDate = async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT id, user_id, food_name, calories, protein, carbs, fats, quantity, unit, meal_type,
+      `SELECT id, user_id, food_name, calories, protein, carbs, fats, fiber, quantity, unit, meal_type,
               TO_CHAR(date, 'YYYY-MM-DD') AS date, created_at
        FROM foods WHERE user_id = $1 AND date = $2 ORDER BY meal_type, created_at`,
       [req.user.id, date]
@@ -178,6 +184,7 @@ const getFoodByDate = async (req, res) => {
       protein:  parseFloat(row.protein),
       carbs:    parseFloat(row.carbs) || 0,
       fats:     parseFloat(row.fats)  || 0,
+      fiber:    parseFloat(row.fiber) || 0,
       category: row.meal_type,  // frontend uses `category`
     }));
 
@@ -203,7 +210,7 @@ const getFoodByDate = async (req, res) => {
 // ============================================
 const updateFood = async (req, res) => {
   const { id } = req.params;
-  const { food_name, calories, protein, carbs, fats, category, meal_type, date } = req.body;
+  const { food_name, calories, protein, carbs, fats, fiber, category, meal_type, date } = req.body;
   const rawMealType = meal_type || category || '';
   const newMealType = rawMealType.toLowerCase();
 
@@ -220,8 +227,8 @@ const updateFood = async (req, res) => {
     const result = await pool.query(
       `UPDATE foods
        SET food_name = $1, calories = $2, protein = $3,
-           carbs = $4, fats = $5, meal_type = $6, date = $7
-       WHERE id = $8 AND user_id = $9
+           carbs = $4, fats = $5, fiber = $6, meal_type = $7, date = $8
+       WHERE id = $9 AND user_id = $10
        RETURNING *`,
       [
         food_name       ?? current.food_name,
@@ -229,6 +236,7 @@ const updateFood = async (req, res) => {
         parseFloat(protein  ?? current.protein),
         parseFloat(carbs    ?? current.carbs),
         parseFloat(fats     ?? current.fats),
+        parseFloat(fiber    ?? current.fiber) || 0,
         newMealType     || current.meal_type,
         date            || current.date,
         id,

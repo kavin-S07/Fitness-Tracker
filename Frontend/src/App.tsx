@@ -14,6 +14,7 @@ import FoodPage     from './pages/FoodPage';
 import ExercisePage from './pages/ExercisePage';
 import ProfilePage  from './pages/ProfilePage';
 import LandingPage from './pages/LandingPage';
+import FoodDatabasePage from './pages/FoodDatabasePage';
 
 const App: React.FC = () => {
 
@@ -33,8 +34,6 @@ const App: React.FC = () => {
           <Route path="/"       element={<LandingPage />} />
           <Route path="/landing" element={<LandingPage />} />
 
-          // Change the default catch-all to land on "/" instead of "/login"
-          <Route path="*" element={<Navigate to="/" replace />} />
           {/* Public */}
           <Route path="/login"  element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
@@ -46,6 +45,9 @@ const App: React.FC = () => {
           <Route path="/food" element={
             <ProtectedRoute><Layout><FoodPage /></Layout></ProtectedRoute>
           } />
+          <Route path="/food-database" element={
+            <ProtectedRoute><Layout><FoodDatabasePage /></Layout></ProtectedRoute>
+          } />
           <Route path="/exercise" element={
             <ProtectedRoute><Layout><ExercisePage /></Layout></ProtectedRoute>
           } />
@@ -53,8 +55,8 @@ const App: React.FC = () => {
             <ProtectedRoute><Layout><ProfilePage /></Layout></ProtectedRoute>
           } />
 
-          {/* Default */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          {/* Default: unmatched paths land on the landing page */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

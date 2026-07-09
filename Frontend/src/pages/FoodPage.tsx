@@ -4,6 +4,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { foodAPI } from '../services/api';
 import { FoodEntry } from '../types';
+import FoodAutocompleteInput from '../components/FoodAutocompleteInput';
+import SuggestMealPanel from '../components/SuggestMealPanel';
 
 // ------------------------------------------------------------------
 // Types
@@ -30,7 +32,7 @@ interface DayDetail {
 // ------------------------------------------------------------------
 // Constants
 // ------------------------------------------------------------------
-const CATEGORIES = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
+const CATEGORIES = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'] as const;
 const CAT_ICONS = Object.freeze({
   Breakfast: '🍳',
   Lunch: '🥗',
@@ -134,6 +136,9 @@ const FoodPage: React.FC = () => {
     food_name: '',
     calories:  '',
     protein:   '',
+    carbs:     '',
+    fats:      '',
+    fiber:     '',
     category:  'Breakfast',
     date:      new Date().toISOString().split('T')[0],
   });
@@ -142,7 +147,7 @@ const FoodPage: React.FC = () => {
 
   // Edit food modal
   const [editFood,     setEditFood]     = useState<FoodEntry | null>(null);
-  const [editForm,     setEditForm]     = useState({ food_name: '', calories: '', protein: '', category: '', date: '' });
+  const [editForm,     setEditForm]     = useState({ food_name: '', calories: '', protein: '', carbs: '', fats: '', fiber: '', category: '', date: '' });
   const [editError,    setEditError]    = useState<string | null>(null);
   const [editLoading,  setEditLoading]  = useState(false);
 
@@ -179,11 +184,14 @@ const FoodPage: React.FC = () => {
         food_name: form.food_name.trim(),
         calories:  parseFloat(form.calories),
         protein:   parseFloat(form.protein),
+        carbs:     parseFloat(form.carbs) || 0,
+        fats:      parseFloat(form.fats) || 0,
+        fiber:     parseFloat(form.fiber) || 0,
         category:  form.category,
         date:      form.date,
       });
       setShowForm(false);
-      setForm({ food_name: '', calories: '', protein: '', category: 'Breakfast', date: new Date().toISOString().split('T')[0] });
+      setForm({ food_name: '', calories: '', protein: '', carbs: '', fats: '', fiber: '', category: 'Breakfast', date: new Date().toISOString().split('T')[0] });
       await loadHistory();
       // If the add was triggered from a breakdown view, refresh detail
       if (detailDate) await openDetail(detailDate);
@@ -220,6 +228,9 @@ const FoodPage: React.FC = () => {
       food_name: food.food_name,
       calories:  String(Math.round(food.calories)),
       protein:   String(Math.round(food.protein)),
+      carbs:     String(food.carbs ?? ''),
+      fats:      String(food.fats ?? ''),
+      fiber:     String(food.fiber ?? ''),
       category:  food.category || food.meal_type || 'Breakfast',
       date:      food.date,
     });
@@ -238,6 +249,9 @@ const FoodPage: React.FC = () => {
         food_name: editForm.food_name.trim(),
         calories:  parseFloat(editForm.calories),
         protein:   parseFloat(editForm.protein),
+        carbs:     parseFloat(editForm.carbs) || 0,
+        fats:      parseFloat(editForm.fats) || 0,
+        fiber:     parseFloat(editForm.fiber) || 0,
         category:  editForm.category,
         date:      editForm.date,
       });
@@ -268,7 +282,7 @@ const FoodPage: React.FC = () => {
   // Open add modal pre-filled with breakdown date
   const openAddForDate = (isoDate: string) => {
     setAddError(null);
-    setForm({ food_name: '', calories: '', protein: '', category: 'Breakfast', date: isoDate });
+    setForm({ food_name: '', calories: '', protein: '', carbs: '', fats: '', fiber: '', category: 'Breakfast', date: isoDate });
     setShowForm(true);
   };
   // ------------------------------------------------------------------
@@ -346,12 +360,15 @@ const FoodPage: React.FC = () => {
         </div>
         <button
           className="btn-primary"
-          onClick={() => { setAddError(null); setForm({ food_name: '', calories: '', protein: '', category: 'Breakfast', date: new Date().toISOString().split('T')[0] }); setShowForm(true); }}
+          onClick={() => { setAddError(null); setForm({ food_name: '', calories: '', protein: '', carbs: '', fats: '', fiber: '', category: 'Breakfast', date: new Date().toISOString().split('T')[0] }); setShowForm(true); }}
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', padding: '0.7rem 1.5rem', whiteSpace: 'nowrap' }}
         >
           <span style={{ fontSize: '1.3rem', lineHeight: 1 }}>+</span> Add Food
         </button>
       </div>
+
+      {/* ── Suggest a Meal panel ── */}
+      <SuggestMealPanel onLogged={loadHistory} />
 
       {/* ── Stats strip ── */}
       {!loading && totalDays > 0 && (
@@ -663,11 +680,16 @@ const FoodPage: React.FC = () => {
             <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label className="form-label">Food Name</label>
-                <input
-                  className="input-field"
-                  placeholder="e.g. Boiled Eggs"
+                <FoodAutocompleteInput
                   value={form.food_name}
-                  onChange={e => setForm(p => ({ ...p, food_name: e.target.value }))}
+                  onNameChange={name => setForm(p => ({ ...p, food_name: name }))}
+                  onAutofill={values => setForm(p => ({
+                    ...p,
+                    calories: String(values.calories),
+                    protein:  String(values.protein),
+                    carbs:    String(values.carbs),
+                    fats:     String(values.fats),
+                  }))}
                 />
               </div>
               <div>
@@ -697,6 +719,7 @@ const FoodPage: React.FC = () => {
                     type="number"
                     placeholder="250"
                     min="0"
+                    step="any"
                     value={form.calories}
                     onChange={e => setForm(p => ({ ...p, calories: e.target.value }))}
                   />
@@ -708,10 +731,48 @@ const FoodPage: React.FC = () => {
                     type="number"
                     placeholder="20"
                     min="0"
+                    step="any"
                     value={form.protein}
                     onChange={e => setForm(p => ({ ...p, protein: e.target.value }))}
                   />
                 </div>
+              </div>
+              <div className="grid-2">
+                <div>
+                  <label className="form-label">Carbs (g)</label>
+                  <input
+                    className="input-field"
+                    type="number"
+                    placeholder="30"
+                    min="0"
+                    step="any"
+                    value={form.carbs}
+                    onChange={e => setForm(p => ({ ...p, carbs: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="form-label">Fats (g)</label>
+                  <input
+                    className="input-field"
+                    type="number"
+                    placeholder="10"
+                    min="0"
+                    step="any"
+                    value={form.fats}
+                    onChange={e => setForm(p => ({ ...p, fats: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="form-label">Fiber (g)</label>
+                <input
+                  className="input-field"
+                  type="number"
+                  placeholder="3"
+                  min="0"
+                  value={form.fiber}
+                  onChange={e => setForm(p => ({ ...p, fiber: e.target.value }))}
+                />
               </div>
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
                 <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => setShowForm(false)}>Cancel</button>
@@ -772,6 +833,26 @@ const FoodPage: React.FC = () => {
                     value={editForm.protein}
                     onChange={e => setEditForm(p => ({ ...p, protein: e.target.value }))} />
                 </div>
+              </div>
+              <div className="grid-2">
+                <div>
+                  <label className="form-label">Carbs (g)</label>
+                  <input className="input-field" type="number" placeholder="30" min="0"
+                    value={editForm.carbs}
+                    onChange={e => setEditForm(p => ({ ...p, carbs: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="form-label">Fats (g)</label>
+                  <input className="input-field" type="number" placeholder="10" min="0"
+                    value={editForm.fats}
+                    onChange={e => setEditForm(p => ({ ...p, fats: e.target.value }))} />
+                </div>
+              </div>
+              <div>
+                <label className="form-label">Fiber (g)</label>
+                <input className="input-field" type="number" placeholder="3" min="0"
+                  value={editForm.fiber}
+                  onChange={e => setEditForm(p => ({ ...p, fiber: e.target.value }))} />
               </div>
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
                 <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => setEditFood(null)}>Cancel</button>

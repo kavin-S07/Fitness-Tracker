@@ -51,6 +51,75 @@ export interface DashboardUser {
   weight_remaining: number | null;
 }
 
+export interface FoodReferenceResult {
+  id: number;
+  food_name: string;
+  serving_quantity: string;
+  serving_grams: number | null;
+  calories_kcal: number;
+  protein_g: number;
+  carbohydrates_g: number;
+  fat_g: number;
+}
+
+// ── Food Database page ───────────────────────────────────────
+export interface FoodListResult {
+  id: number;
+  food_name: string;
+  serving_quantity: string;
+  calories_kcal: number;
+  protein_g: number;
+  carbohydrates_g: number;
+  fat_g: number;
+}
+
+export interface FoodListResponse {
+  results: FoodListResult[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export type FoodSortBy = 'food_name' | 'calories_kcal' | 'protein_g' | 'carbohydrates_g' | 'fat_g';
+export type FoodSortDir = 'asc' | 'desc';
+
+// Full row returned by GET /api/food/reference/:id — every column on
+// food_nutrition_reference (macros + micronutrients + vitamins).
+export interface FoodReferenceDetail {
+  id: number;
+  food_name: string;
+  serving_quantity: string | null;
+  serving_grams: number | null;
+  calories_kcal: number;
+  protein_g: number;
+  carbohydrates_g: number;
+  fat_g: number;
+  fiber_g: number | null;
+  sugar_g: number | null;
+  saturated_fat_g: number | null;
+  cholesterol_mg: number | null;
+  sodium_mg: number | null;
+  potassium_mg: number | null;
+  calcium_mg: number | null;
+  iron_mg: number | null;
+  magnesium_mg: number | null;
+  phosphorus_mg: number | null;
+  zinc_mg: number | null;
+  vitamin_a_ug: number | null;
+  vitamin_b1_mg: number | null;
+  vitamin_b2_mg: number | null;
+  vitamin_b3_mg: number | null;
+  vitamin_b5_mg: number | null;
+  vitamin_b6_mg: number | null;
+  vitamin_b9_ug: number | null;
+  vitamin_b12_ug: number | null;
+  vitamin_c_mg: number | null;
+  vitamin_d_ug: number | null;
+  vitamin_e_mg: number | null;
+  vitamin_k_ug: number | null;
+}
+
 export interface WeeklyFoodEntry {
   date: string;
   calories: number;
@@ -79,6 +148,38 @@ export interface FoodEntry {
   date: string;
   carbs?: number;
   fats?: number;
+  fiber?: number;
+}
+
+// ── "Suggest a meal" feature ─────────────────────────────────
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+
+export interface MealComboItem {
+  id: number;
+  food_reference_id: number;
+  food_name: string;
+  serving_quantity: string | null;
+  quantity_multiplier: number;
+  calories_kcal: number;
+  protein_g: number;
+  carbohydrates_g: number;
+  fat_g: number;
+}
+
+export interface MealCombination {
+  id: number;
+  meal_type: MealType;
+  combo_name: string;
+  total_calories: number;
+  total_protein: number;
+  total_carbs: number;
+  total_fat: number;
+}
+
+export interface MealSuggestionResponse {
+  success: boolean;
+  combination: MealCombination | null;
+  items: MealComboItem[];
 }
 
 export interface TodayFoodResponse {

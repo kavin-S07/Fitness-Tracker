@@ -1,0 +1,131 @@
+id,name,calories,protein,carbs,fat
+1,3 Idiyappam + 3 Boiled Eggs,420,22.2,43.2,16.5
+2,2 Kal Dosa + 4 Egg Whites + Sambar,423,23.3,63.3,7.2
+3,1 Uthappam + 100g Chicken Curry + Sambar,422,21.4,50.6,14.4
+4,2 Appam + 100g Grilled Chicken + Sambar,420,35.9,43.3,10.6
+5,1 Rava Dosa + 100g Paneer,420,22.1,26.6,25.0
+6,2 Kal Dosa + 100g Fish Curry,418,22.0,56.0,10.5
+7,3 Idli + 200g Greek Yogurt + Sambar,424,25.5,50.8,12.7
+8,100g Oats Porridge + 100g Roasted Chana,423,20.5,67.6,6.7
+9,2 Plain Dosa + 50g Soya Chunks,422,31.6,61.3,5.7
+10,2 Set Dosa + 100g Fish Fry,420,22.9,41.2,17.9
+11,1 Adai + 1 Omelette,413,21.2,32.6,21.8
+12,1 Pesarattu + 50g Peanuts,448,20.7,34.2,28.0
+13,2 Pesarattu + 200g Sprouts Salad,454,24.0,71.2,7.6
+14,2 Pesarattu + 200g Curd,452,22.2,61.4,13.6
+15,2 Pesarattu + 2 Egg Yolks,440,21.0,53.6,15.8
+16,3 Ragi Idli + 3 Boiled Eggs,420,23.7,40.2,16.5
+17,2 Oats Idli + 4 Egg Whites + Coconut Chutney,416,21.6,35.2,21.0
+18,2 Chapati + 100g Chicken Curry + Sambar,423,23.6,55.7,12.6
+19,2 Rava Idli + 100g Grilled Chicken + Sambar,418,37.9,39.3,11.2
+20,2 Oats Idli + 100g Paneer,421,23.1,28.2,23.6
+21,3 Oats Idli + 100g Fish Curry + Sambar,427,24.5,51.8,12.7
+22,1 Pesarattu + 200g Greek Yogurt + Sambar,424,27.9,43.1,15.8
+23,2 Idli + 100g Roasted Chana,479,22.2,80.8,6.0
+24,100g Ven Pongal + 50g Soya Chunks + Sambar,422,32.7,50.2,10.2
+25,100g Rava Upma + 100g Fish Fry + Sambar,417,23.8,35.2,20.0
+26,3 Idli + 1 Omelette + Sambar,445,20.3,45.2,19.9
+27,1 Adai + 50g Peanuts,482,21.3,38.2,29.2
+28,2 Adai + 100g Sprouts Salad,458,21.0,69.8,9.6
+29,2 Adai + 200g Curd,518,23.4,69.4,16.0
+30,2 Adai + 2 Egg Yolks,506,22.2,61.6,18.2
+31,1 Adai + 2 Boiled Eggs + Sambar,419,23.1,40.3,17.6
+32,2 Onion Dosa + 4 Egg Whites,424,21.6,59.8,10.0
+33,2 Set Dosa + 100g Chicken Curry + Sambar,417,21.0,49.1,15.0
+34,3 Idiyappam + 100g Grilled Chicken + Sambar,416,36.4,50.3,6.6
+35,100g Semiya Upma + 100g Paneer,417,21.7,25.3,25.4
+36,2 Wheat Dosa + 100g Fish Curry + Sambar,429,25.1,56.9,12.1
+37,2 Oats Idli + 200g Greek Yogurt + Sambar,415,24.9,43.9,15.2
+38,100g Sambar Idli + 100g Roasted Chana,481,22.4,77.7,7.9
+39,100g Oats Porridge + 50g Soya Chunks + Coconut Chutney,418,30.3,33.3,18.9
+40,100g Samai Upma + 100g Fish Fry + Sambar,416,24.5,35.0,19.7
+41,1 Pesarattu + 1 Omelette + Sambar,445,22.7,37.5,23.0
+42,3 Idli + 50g Peanuts + Sambar,514,20.4,50.9,27.3
+43,3 Chapati + 200g Sprouts Salad + Sambar,513,21.0,93.1,6.8
+44,2 Veg Sandwich + 200g Curd + Sambar,577,21.5,87.5,15.6
+45,2 Veg Sandwich + 2 Egg Yolks + Sambar,565,20.3,79.7,17.8
+46,100g Ven Pongal + 3 Boiled Eggs,419,23.5,26.6,23.5
+47,3 Idli + 4 Egg Whites + Coconut Chutney,425,22.2,42.1,18.5
+48,3 Rava Idli + 100g Chicken Curry,424,21.7,48.8,15.6
+49,3 Ragi Idli + 100g Grilled Chicken + Sambar,416,37.9,47.3,6.6
+50,3 Idli + 100g Paneer,430,23.7,35.1,21.1
+51,2 Idli + 100g Fish Curry + Coconut Chutney,430,21.2,32.4,24.1
+52,1 Rava Dosa + 200g Greek Yogurt + Sambar,414,23.9,42.3,16.6
+53,100g Oats Upma + 100g Roasted Chana,487,21.7,74.4,10.3
+54,3 Idiyappam + 50g Soya Chunks + Sambar,424,31.4,66.8,3.2
+55,1 Uthappam + 100g Fish Fry,425,23.3,42.7,17.3
+56,3 Oats Idli + 1 Omelette,449,20.0,42.9,21.4
+57,3 Oats Idli + 50g Peanuts,518,20.1,48.5,28.8
+58,2 Veg Sandwich + 200g Sprouts Salad,514,21.2,88.4,7.2
+59,1 Kanchipuram Idli + 3 Boiled Eggs + Sambar,419,24.2,28.5,22.4
+60,3 Rava Idli + 4 Egg Whites + Sambar,415,23.7,55.3,10.6
+61,2 Thinai Dosa + 100g Chicken Curry,410,22.3,47.4,13.4
+62,2 Plain Dosa + 100g Grilled Chicken,415,36.6,44.8,9.0
+63,1 Pesarattu + 100g Paneer,430,26.1,27.4,24.2
+64,3 Rava Idli + 100g Fish Curry,410,22.4,48.0,13.9
+65,100g Semiya Upma + 200g Greek Yogurt + Sambar,411,23.5,41.0,17.0
+66,1 Kanchipuram Idli + 100g Roasted Chana,489,21.8,76.0,9.9
+67,1 Onion Dosa + 50g Soya Chunks + Sambar,416,31.7,54.9,7.4
+68,2 Chapati + 100g Fish Fry,426,25.5,47.8,15.5
+69,2 Wheat Dosa + 1 Omelette,451,20.6,48.0,20.8
+70,2 Wheat Dosa + 50g Peanuts,520,20.7,53.7,28.2
+71,2 Rava Idli + 3 Boiled Eggs,422,23.7,32.2,21.1
+72,1 Rava Dosa + 4 Egg Whites + Coconut Chutney,415,20.6,33.6,22.4
+73,2 Kal Dosa + 100g Chicken Curry,432,21.3,56.8,12.2
+74,100g Ven Pongal + 100g Grilled Chicken + Sambar,415,37.7,33.7,13.6
+75,100g Rava Upma + 100g Paneer,407,21.5,23.3,25.3
+76,2 Chapati + 100g Fish Curry + Sambar,409,24.3,54.9,10.9
+77,2 Wheat Dosa + 200g Greek Yogurt,430,25.8,53.6,13.6
+78,2 Idiyappam + 100g Roasted Chana,493,20.8,85.8,6.2
+79,3 Ragi Idli + 50g Soya Chunks + Sambar,424,32.9,63.8,3.2
+80,100g Varagu Upma + 100g Fish Fry + Sambar,413,24.2,34.6,19.6
+81,100g Thinai Pongal + 1 Omelette + Sambar,458,20.1,34.1,26.5
+82,100g Thinai Pongal + 50g Peanuts + Sambar,526,20.2,39.8,33.9
+83,100g Oats Upma + 3 Boiled Eggs + Sambar,417,24.1,26.9,22.8
+84,1 Pesarattu + 4 Egg Whites + Coconut Chutney,425,24.6,34.4,21.6
+85,2 Ragi Dosa + 100g Chicken Curry,406,20.7,51.6,12.8
+86,3 Kambu Idli + 100g Grilled Chicken + Sambar,425,38.8,45.5,7.2
+87,100g Samai Upma + 100g Paneer,406,22.2,23.1,25.0
+88,1 Uthappam + 100g Fish Curry + Sambar,408,22.1,49.8,12.7
+89,2 Chapati + 200g Greek Yogurt,410,25.0,51.6,12.4
+90,2 Ragi Idli + 100g Roasted Chana,493,21.8,83.8,6.2
+91,2 Poori + 50g Soya Chunks,416,30.8,47.3,11.8
+92,100g Semiya Upma + 100g Fish Fry + Sambar,427,24.0,37.2,20.1
+93,3 Kambu Idli + 1 Omelette + Sambar,475,20.6,47.9,20.8
+94,3 Kambu Idli + 50g Peanuts + Sambar,544,20.7,53.5,28.2
+95,1 Plain Dosa + 3 Boiled Eggs + Sambar,424,23.8,33.1,21.0
+96,100g Semiya Upma + 4 Egg Whites + Coconut Chutney,412,20.2,32.3,22.8
+97,1 Adai + 100g Chicken Curry + Sambar,405,25.0,42.3,14.8
+98,1 Veg Sandwich + 100g Grilled Chicken + Sambar,425,39.5,43.7,9.2
+99,100g Varagu Upma + 100g Paneer,403,21.9,22.7,24.9
+100,100g Sambar Idli + 100g Fish Curry + Coconut Chutney,432,21.4,29.3,26.0
+101,1 Uthappam + 200g Greek Yogurt,409,22.8,46.5,14.2
+102,1 Plain Dosa + 100g Roasted Chana,494,21.4,80.6,8.5
+103,100g Thinai Pongal + 50g Soya Chunks + Sambar,416,33.3,48.2,9.6
+104,1 Rava Dosa + 100g Fish Fry + Sambar,430,24.4,38.5,19.7
+105,1 Veg Sandwich + 1 Omelette + Sambar,475,21.3,46.1,22.8
+106,1 Veg Sandwich + 50g Peanuts + Sambar,544,21.4,51.7,30.2
+107,2 Appam + 3 Boiled Eggs,424,21.7,36.2,20.5
+108,100g Rava Upma + 4 Egg Whites + Coconut Chutney,402,20.0,30.3,22.7
+109,3 Kambu Idli + 100g Chicken Curry + Sambar,402,22.3,48.7,11.4
+110,1 Adai + 100g Grilled Chicken + Sambar,428,41.5,39.1,10.6
+111,100g Sambar Idli + 100g Paneer + Sambar,442,24.2,29.6,25.3
+112,100g Puttu + 100g Fish Curry + Sambar,433,21.8,55.5,13.3
+113,100g Puttu + 200g Greek Yogurt,434,22.5,52.2,14.8
+114,2 Kambu Idli + 100g Roasted Chana,499,22.4,82.6,6.6
+115,2 Rava Idli + 50g Soya Chunks + Sambar,426,32.9,55.8,7.8
+116,2 Oats Idli + 100g Fish Fry + Sambar,431,25.4,40.1,18.3
+117,2 Thinai Dosa + 1 Omelette,483,20.6,46.6,22.8
+118,2 Thinai Dosa + 50g Peanuts,552,20.7,52.2,30.2
+119,3 Kambu Idli + 2 Boiled Eggs + Sambar,416,20.4,46.7,14.2
+120,100g Thinai Pongal + 4 Egg Whites + Coconut Chutney,438,22.0,31.0,25.1
+121,1 Veg Sandwich + 100g Chicken Curry + Sambar,402,23.0,46.9,13.4
+122,2 Ragi Dosa + 100g Grilled Chicken,429,37.2,48.4,8.6
+123,1 Onion Dosa + 100g Paneer,443,21.9,30.7,25.6
+124,2 Kanchipuram Idli + 100g Fish Curry + Sambar,433,23.7,46.9,16.7
+125,2 Kanchipuram Idli + 200g Greek Yogurt,434,24.4,43.6,18.2
+126,100g Varagu Upma + 100g Roasted Chana,507,22.2,79.7,9.9
+127,2 Appam + 50g Soya Chunks + Sambar,428,30.9,59.8,7.2
+128,1 Adai + 100g Fish Fry,408,26.9,34.4,17.7
+129,2 Chapati + 1 Omelette + Sambar,496,21.9,54.9,22.0
+130,2 Chapati + 50g Peanuts + Sambar,564,22.0,60.6,29.4

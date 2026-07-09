@@ -2,6 +2,7 @@
 // src/services/api.ts  –  All API calls to the backend
 // ============================================================
 import axios from 'axios';
+import { FoodReferenceResult, MealType, MealSuggestionResponse, FoodListResponse, FoodSortBy, FoodSortDir } from '../types';
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -39,11 +40,14 @@ export const dashboardAPI = {
 
 // ── Food ─────────────────────────────────────────────────────
 export const foodAPI = {
-  addFood: (data: { food_name: string; calories: number; protein: number; category: string; date?: string }) =>
+  addFood: (data: { food_name: string; calories: number; protein: number; carbs?: number; fats?: number; fiber?: number; category: string; date?: string }) =>
     api.post('/food/add', {
       food_name: data.food_name,
       calories: data.calories,
       protein: data.protein,
+      carbs: data.carbs ?? 0,
+      fats: data.fats ?? 0,
+      fiber: data.fiber ?? 0,
       meal_type: data.category.toLowerCase(),
       date: data.date,
     }),
@@ -56,16 +60,71 @@ export const foodAPI = {
 
   updateFood: (id: string | number, data: {
     food_name?: string; calories?: number; protein?: number;
+    carbs?: number; fats?: number; fiber?: number;
     category?: string; date?: string;
   }) => api.put(`/food/${id}`, {
     food_name: data.food_name,
     calories: data.calories,
     protein: data.protein,
+    carbs: data.carbs,
+    fats: data.fats,
+    fiber: data.fiber,
     meal_type: data.category?.toLowerCase(),
     date: data.date,
   }),
 
   deleteFood: (id: string | number) => api.delete(`/food/${id}`),
+
+  predictFood: (foodName: string) =>
+    api.get('/food/predict', { params: { q: foodName } }),
+
+  // Autocomplete search against the food_nutrition_reference table.
+  // Returns [] for empty/short queries without hitting the network.
+  searchReference: async (query: string): Promise<FoodReferenceResult[]> => {
+    if (!query || query.trim().length < 2) return [];
+    const res = await api.get<FoodReferenceResult[]>('/food/search', {
+      params: { q: query },
+    });
+    return res.data;
+  },
+
+  getReferenceById: (id: number | string) =>
+    api.get(`/food/reference/${id}`),
+
+  // Paginated/sortable/searchable browse of the full food_nutrition_reference
+  // table, for the standalone Food Database page.
+  listReference: async (params: {
+    search?: string;
+    sortBy?: FoodSortBy;
+    sortDir?: FoodSortDir;
+    page?: number;
+    pageSize?: number;
+  }): Promise<FoodListResponse> => {
+    const res = await api.get<FoodListResponse>('/food/reference', { params });
+    return res.data;
+  },
+
+  // "Suggest a meal" — best-match combo for a meal type + remaining targets.
+  // exclude carries ids already shown this session so "Next combination"
+  // cycles through progressively different (but still valid) matches.
+  suggestMeal: (params: {
+    mealType: MealType;
+    targetCalories: number;
+    targetProtein: number;
+    exclude?: (number | string)[];
+  }) =>
+    api.get<MealSuggestionResponse>('/food/suggest', {
+      params: {
+        mealType: params.mealType,
+        targetCalories: params.targetCalories,
+        targetProtein: params.targetProtein,
+        exclude: params.exclude && params.exclude.length ? params.exclude.join(',') : undefined,
+      },
+    }),
+
+  // "Surprise me" — a fully random combo for the meal type, ignoring targets.
+  randomMeal: (mealType: MealType) =>
+    api.get<MealSuggestionResponse>('/food/random', { params: { mealType } }),
 };
 
 // ── Exercise ──────────────────────────────────────────────────

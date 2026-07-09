@@ -1,0 +1,136 @@
+id,name,calories,protein,carbs,fat
+1,150g Tomato Rice + 200g Chicken Curry + Sambar,580,35.5,51.5,25.6
+2,200g Brown Rice + 150g Chicken 65 + Rasam,580,33.4,57.9,24.0
+3,1 Parotta + 150g Grilled Chicken + Poriyal,580,54.3,49.7,17.0
+4,1 Parotta + 150g Tandoori Chicken + Poriyal,580,45.0,51.3,21.8
+5,150g Millet Rice + 200g Mutton Curry + Rasam,581,38.6,44.0,27.4
+6,3 Chapati + 200g Fish Curry,580,40.9,70.2,15.8
+7,150g Tomato Rice + 150g Fish Fry + Rasam,580,32.7,47.2,28.8
+8,3 Chapati + 200g Prawn Curry,580,41.3,71.6,15.8
+9,200g Brown Rice + 200g Egg Curry + Vatha Kuzhambu,580,20.0,66.8,25.7
+10,150g Millet Rice + 200g Paneer Butter Masala + Rasam,581,22.7,47.4,34.2
+11,150g Coconut Rice + 100g Paneer,580,23.1,36.3,38.0
+12,150g Curd Rice + 200g Rajma / Chole + Avial/Kootu,579,20.2,77.9,21.5
+13,200g Brown Rice + 250g Dal Fry + Curd,580,22.0,89.5,15.0
+14,150g Lemon Rice + 200g Chana Sundal,580,20.9,78.8,20.1
+15,200g White Rice + 75g Soya Chunks + Curd,580,47.1,85.7,4.2
+16,2 Chapati + 200g Sprouts Sundal + Poriyal,580,23.0,88.8,16.2
+17,2 Chapati + 200g Vadacurry + Curd,613,21.1,76.5,25.4
+18,150g Ghee Rice + 150g Chicken Liver + Poriyal,580,31.1,47.3,28.8
+19,150g Coconut Rice + 200g Crab + Vatha Kuzhambu,577,42.2,46.5,23.8
+20,3 Tandoori Roti + 100g Mutton Liver,582,35.8,93.3,6.9
+21,1 Naan + 200g Chicken Curry + Curd,580,38.4,54.7,22.8
+22,1 Parotta + 150g Chicken 65,580,33.8,47.6,28.1
+23,150g Jeera Rice + 150g Grilled Chicken + Avial/Kootu,580,53.2,46.3,19.1
+24,150g Jeera Rice + 150g Tandoori Chicken + Avial/Kootu,580,44.0,48.0,23.9
+25,200g Red Rice + 150g Mutton Curry + Poriyal,582,31.6,58.6,24.7
+26,150g Ghee Rice + 150g Fish Curry + Curd,580,30.3,46.2,29.9
+27,150g Millet Rice + 150g Fish Fry + Vatha Kuzhambu,580,34.2,51.3,25.4
+28,150g Ghee Rice + 150g Prawn Curry + Curd,580,30.6,47.2,29.9
+29,150g Curd Rice + 200g Egg Curry + Avial/Kootu,579,21.4,49.3,32.9
+30,2 Chapati + 150g Paneer Butter Masala + Vatha Kuzhambu,582,20.8,61.8,30.1
+31,2 Chapati + 100g Paneer + Avial/Kootu,579,27.7,53.9,29.3
+32,150g Lemon Rice + 200g Rajma / Chole + Curd,581,20.4,78.7,20.9
+33,2 Rumali Roti + 250g Dal Fry,579,21.1,95.0,12.6
+34,150g Tamarind Rice + 150g Chana Sundal + Curd,580,20.6,76.5,21.7
+35,200g Brown Rice + 75g Soya Chunks + Avial/Kootu,581,46.6,80.8,8.3
+36,200g Brown Rice + 200g Sprouts Sundal + Sambar,579,21.7,92.9,13.8
+37,1 Naan + 200g Vadacurry + Curd,632,20.2,76.7,26.8
+38,150g Coconut Rice + 150g Chicken Liver + Vatha Kuzhambu,582,31.3,47.5,28.8
+39,150g Ghee Rice + 200g Crab + Poriyal,575,42.0,46.3,23.8
+40,3 Rumali Roti + 100g Mutton Liver,564,32.5,87.3,9.3
+41,2 Tandoori Roti + 200g Chicken Curry,580,38.8,67.4,16.8
+42,150g White Rice + 150g Chicken 65 + Sambar,582,33.3,57.3,23.4
+43,150g Ghee Rice + 100g Grilled Chicken + Vatha Kuzhambu,580,36.4,49.5,25.3
+44,150g Ghee Rice + 100g Tandoori Chicken + Vatha Kuzhambu,580,30.2,50.6,28.5
+45,2 Chapati + 150g Mutton Curry + Vatha Kuzhambu,582,32.8,59.2,25.0
+46,200g Millet Rice + 200g Fish Curry + Vatha Kuzhambu,580,38.6,61.0,18.5
+47,2 Tandoori Roti + 100g Fish Fry + Poriyal,580,29.9,73.4,18.5
+48,200g Millet Rice + 200g Prawn Curry + Vatha Kuzhambu,580,39.0,62.4,18.5
+49,150g Lemon Rice + 200g Egg Curry + Curd,581,21.6,50.1,32.3
+50,1 Naan + 150g Paneer Butter Masala + Sambar,578,20.8,59.4,29.6
+51,150g Lemon Rice + 100g Paneer + Sambar,582,25.1,47.3,32.5
+52,150g Millet Rice + 300g Rajma / Chole,579,23.9,89.1,13.8
+53,150g Curd Rice + 250g Dal Fry + Poriyal,582,20.5,78.0,21.1
+54,200g Millet Rice + 150g Chana Sundal + Avial/Kootu,580,21.5,85.1,16.2
+55,150g Jeera Rice + 75g Soya Chunks + Vatha Kuzhambu,581,44.6,73.4,12.3
+56,200g Red Rice + 200g Sprouts Sundal + Curd,581,23.1,87.7,15.2
+57,2 Tandoori Roti + 200g Vadacurry,632,20.6,89.4,20.8
+58,3 Chapati + 150g Chicken Liver + Poriyal,576,37.4,74.7,15.0
+59,3 Chapati + 200g Crab + Vatha Kuzhambu,586,47.9,76.8,10.1
+60,150g Ghee Rice + 100g Mutton Liver + Avial/Kootu,563,27.7,49.0,28.6
+61,200g Red Rice + 200g Chicken Curry + Sambar,579,36.5,61.5,20.2
+62,1 Butter Naan + 100g Chicken 65 + Sambar,578,27.0,58.2,26.6
+63,1 Naan + 150g Grilled Chicken + Avial/Kootu,580,55.0,52.9,15.3
+64,1 Naan + 150g Tandoori Chicken + Avial/Kootu,580,45.7,54.5,20.1
+65,150g Curd Rice + 150g Mutton Curry + Vatha Kuzhambu,578,31.2,47.4,29.8
+66,200g White Rice + 200g Fish Curry + Sambar,581,37.3,70.1,15.0
+67,150g Brown Rice + 150g Fish Fry + Avial/Kootu,581,34.0,50.6,27.1
+68,200g White Rice + 200g Prawn Curry + Sambar,581,37.7,71.5,15.0
+69,150g Millet Rice + 300g Egg Curry,579,25.6,46.2,30.9
+70,150g Curd Rice + 200g Paneer Butter Masala,583,22.2,40.8,38.4
+71,200g Brown Rice + 100g Paneer + Vatha Kuzhambu,577,24.7,59.6,26.9
+72,2 Chapati + 200g Rajma / Chole + Avial/Kootu,582,21.8,89.7,16.7
+73,150g White Rice + 300g Dal Fry + Rasam,583,20.4,92.7,13.5
+74,1 Naan + 150g Chana Sundal + Avial/Kootu,579,20.6,84.1,18.0
+75,1 Parotta + 75g Soya Chunks + Sambar,582,47.3,75.2,10.2
+76,1 Parotta + 200g Sprouts Sundal + Rasam,582,21.2,83.3,18.5
+77,200g Millet Rice + 200g Vadacurry + Curd,633,21.1,77.7,25.0
+78,1 Butter Naan + 150g Chicken Liver + Avial/Kootu,574,34.2,55.4,23.7
+79,1 Butter Naan + 200g Crab + Avial/Kootu,570,45.1,54.3,18.7
+80,3 Chapati + 100g Mutton Liver + Avial/Kootu,560,34.0,76.3,14.8
+81,150g Jeera Rice + 200g Chicken Curry + Curd,579,36.6,48.1,26.6
+82,150g Red Rice + 150g Chicken 65 + Vatha Kuzhambu,583,32.9,52.2,26.7
+83,1 Butter Naan + 150g Grilled Chicken + Rasam,580,53.6,50.0,17.3
+84,1 Butter Naan + 150g Tandoori Chicken + Rasam,580,44.3,51.6,22.1
+85,150g Tomato Rice + 150g Mutton Curry + Poriyal,582,30.5,48.6,30.1
+86,1 Parotta + 200g Fish Curry + Sambar,579,38.7,55.2,22.0
+87,200g Red Rice + 150g Fish Fry + Rasam,579,33.8,57.3,23.3
+88,1 Parotta + 200g Prawn Curry + Sambar,579,39.1,56.6,22.0
+89,2 Chapati + 200g Egg Curry + Avial/Kootu,582,23.0,61.1,28.1
+90,150g Red Rice + 200g Paneer Butter Masala + Rasam,576,21.5,48.5,34.4
+91,200g Red Rice + 100g Paneer + Vatha Kuzhambu,583,24.9,58.8,27.3
+92,1 Naan + 200g Rajma / Chole + Poriyal,577,20.1,89.0,16.2
+93,200g Red Rice + 300g Dal Fry,584,21.6,91.8,13.9
+94,2 Chapati + 200g Chana Sundal + Rasam,578,23.8,90.0,14.7
+95,150g Tomato Rice + 75g Soya Chunks + Vatha Kuzhambu,578,44.6,72.3,12.3
+96,150g Tomato Rice + 200g Sprouts Sundal + Curd,582,22.1,77.7,20.6
+97,150g Brown Rice + 250g Vadacurry + Curd,649,20.7,75.2,29.2
+98,2 Tandoori Roti + 150g Chicken Liver + Avial/Kootu,572,37.5,71.1,14.5
+99,2 Tandoori Roti + 200g Crab + Avial/Kootu,568,48.4,70.1,9.5
+100,2 Naan + 100g Mutton Liver,608,33.3,89.4,12.7
+101,200g Millet Rice + 200g Chicken Curry + Curd,581,39.3,55.7,21.0
+102,150g Ghee Rice + 100g Chicken 65 + Rasam,576,23.2,47.0,32.7
+103,200g White Rice + 150g Grilled Chicken + Poriyal,582,52.9,64.6,10.0
+104,200g White Rice + 150g Tandoori Chicken + Poriyal,582,43.6,66.2,14.8
+105,1 Naan + 150g Mutton Curry + Sambar,578,32.8,56.9,24.5
+106,150g Coconut Rice + 150g Fish Curry + Poriyal,581,29.2,46.9,30.6
+107,150g Tamarind Rice + 100g Fish Fry + Avial/Kootu,581,26.0,54.1,29.4
+108,150g Coconut Rice + 150g Prawn Curry + Poriyal,581,29.5,47.9,30.6
+109,1 Naan + 200g Egg Curry + Poriyal,577,21.3,60.4,27.6
+110,2 Tandoori Roti + 150g Paneer Butter Masala,574,22.4,67.8,24.6
+111,2 Rumali Roti + 100g Paneer + Rasam,583,26.5,63.0,25.1
+112,150g Red Rice + 300g Rajma / Chole,574,22.7,90.2,13.9
+113,2 Chapati + 250g Dal Fry + Sambar,576,22.6,90.5,14.6
+114,150g White Rice + 200g Chana Sundal + Curd,584,23.1,88.4,14.5
+115,1 Naan + 75g Soya Chunks + Vatha Kuzhambu,582,46.3,80.0,8.5
+116,2 Tandoori Roti + 150g Sprouts Sundal + Sambar,578,22.7,97.7,10.8
+117,150g Red Rice + 250g Vadacurry + Curd,654,20.9,74.7,29.5
+118,2 Rumali Roti + 150g Chicken Liver + Avial/Kootu,560,35.3,67.1,16.1
+119,3 Rumali Roti + 200g Crab,600,47.6,85.5,6.4
+120,150g Coconut Rice + 100g Mutton Liver + Avial/Kootu,551,28.3,46.0,28.5
+121,200g White Rice + 200g Chicken Curry + Rasam,578,34.4,67.6,17.5
+122,150g Tamarind Rice + 100g Chicken 65 + Vatha Kuzhambu,576,24.7,56.3,28.3
+123,150g Tamarind Rice + 150g Grilled Chicken + Curd,582,54.9,45.3,19.0
+124,150g Tamarind Rice + 150g Tandoori Chicken + Curd,582,45.6,46.9,23.8
+125,200g Brown Rice + 150g Mutton Curry + Poriyal,576,31.4,59.4,24.3
+126,1 Naan + 200g Fish Curry + Vatha Kuzhambu,579,37.7,60.0,20.3
+127,2 Rumali Roti + 100g Fish Fry + Vatha Kuzhambu,582,27.3,72.6,20.2
+128,1 Naan + 200g Prawn Curry + Vatha Kuzhambu,579,38.1,61.4,20.3
+129,150g Red Rice + 300g Egg Curry,574,24.4,47.3,31.1
+130,150g Brown Rice + 200g Paneer Butter Masala + Rasam,572,21.3,49.0,34.0
+131,1 Parotta + 100g Paneer + Curd,584,27.8,47.2,31.6
+132,2 Rumali Roti + 200g Rajma / Chole + Rasam,586,20.6,98.8,12.5
+133,150g Tomato Rice + 300g Dal Fry,585,20.6,81.8,19.3
+134,150g Brown Rice + 200g Chana Sundal + Vatha Kuzhambu,584,21.3,88.2,16.4
+135,200g Red Rice + 75g Soya Chunks + Vatha Kuzhambu,577,45.6,82.4,6.9

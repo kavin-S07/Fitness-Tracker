@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 const NAV_LINKS = [
   { path: '/home',     label: 'Home',         icon: '⊞' },
   { path: '/food',     label: 'Food Tracker', icon: '🥗' },
+  { path: '/food-database', label: 'Food Database', icon: '📖' },
   { path: '/exercise', label: 'Gym Tracker',  icon: '💪' },
   { path: '/profile',  label: 'Profile',      icon: '👤' },
 ];

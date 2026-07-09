@@ -82,6 +82,14 @@ const PORT = process.env.PORT || 5000;
 
 (async () => {
   try {
+    // Nutrition auto-fill feature: ensure the `foods` table can store fiber
+    // for users on an existing database that predates this column.
+    await pool.query(`ALTER TABLE foods ADD COLUMN IF NOT EXISTS fiber FLOAT DEFAULT 0;`);
+  } catch (err) {
+    console.error('❌ Fiber column migration error:', err.message);
+  }
+
+  try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS daily_calorie_tracking (
         id                 SERIAL PRIMARY KEY,
@@ -111,6 +119,46 @@ const PORT = process.env.PORT || 5000;
     console.log('✅ Progress tracking tables ensured');
   } catch (err) {
     console.error('❌ Table creation error:', err.message);
+  }
+
+  try {
+    // "Suggest a meal" feature — ensures the combo tables exist even if
+    // models/meal_combinations_schema.sql was never run by hand.
+    // Populate via: npm run import:meal-combinations
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS meal_combinations (
+        id              SERIAL PRIMARY KEY,
+        meal_type       VARCHAR(20) NOT NULL CHECK (meal_type IN ('breakfast', 'lunch', 'dinner', 'snack')),
+        combo_name      TEXT NOT NULL,
+        total_calories  NUMERIC NOT NULL,
+        total_protein   NUMERIC NOT NULL,
+        total_carbs     NUMERIC NOT NULL DEFAULT 0,
+        total_fat       NUMERIC NOT NULL DEFAULT 0,
+        csv_source_id   INTEGER,
+        created_at      TIMESTAMP DEFAULT NOW(),
+        UNIQUE (meal_type, csv_source_id)
+      );
+    `);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS meal_combination_items (
+        id                   SERIAL PRIMARY KEY,
+        combination_id       INTEGER NOT NULL REFERENCES meal_combinations(id) ON DELETE CASCADE,
+        food_reference_id    INTEGER NOT NULL REFERENCES food_nutrition_reference(id),
+        quantity_multiplier  NUMERIC NOT NULL DEFAULT 1,
+        created_at           TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_meal_combinations_type_cal_pro
+        ON meal_combinations (meal_type, total_calories, total_protein);
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_meal_combination_items_combo
+        ON meal_combination_items (combination_id);
+    `);
+    console.log('✅ Meal combination tables ensured');
+  } catch (err) {
+    console.error('❌ Meal combination table creation error:', err.message);
   }
 
   // ── Cron: daily deficit snapshot at 23:59 ───────────────────

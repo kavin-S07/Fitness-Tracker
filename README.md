@@ -59,10 +59,21 @@ FitnessTracker is a personalized fitness companion that calculates your daily ca
 
 ### Food Tracker
 - Log meals with food name, calories, protein, carbs, fats, meal type (Breakfast / Lunch / Dinner / Snack), and date
+- **Autofill autocomplete**: typing a food name queries the `food_nutrition_reference` table (debounced 300ms) and offers ranked matches; selecting one pre-fills calories/protein/carbs/fats, scaled live by a servings multiplier, while staying manually editable
+- **Predictive autofill fallback** (`/food/predict`): fuzzy-matches a typed food name against the reference table server-side when the user types a full entry without picking a suggestion
+- **Suggest a Meal panel**: generates a best-match food combination for a meal type against remaining calorie/protein targets, with a "Next combination" option and a "Surprise me" random combo, both drawn from a seeded `meal_combinations` table
 - View today's food log grouped by meal type
 - Browse food history by date
 - Edit and delete individual food entries
 - Running daily totals for calories and protein
+
+### Food Database
+- Standalone reference/browsing page (`/food-database`) over the full `food_nutrition_reference` table — independent of logging anything
+- Debounced search (300ms) by food name, with results resetting to page 1 on each new query
+- Sortable table (Name, Calories, Protein, Carbs, Fat) — click a header to sort, click again to flip direction; sort persists across pagination
+- Server-side pagination (20 per page, capped at 100) using a single query with `COUNT(*) OVER()` for the total row count
+- Row click opens a detail view with all ~25 nutrition fields, grouped into **Macros**, **Micronutrients**, and **Vitamins** for scannability
+- Reuses the same `GET /api/food/reference/:id` endpoint as the Food Tracker's autofill for the detail view — no duplicated queries
 
 ### Exercise / Gym Tracker
 - Browse a seeded exercise library organized by muscle group (Chest, Back, Biceps, Shoulders, etc.)
@@ -128,15 +139,25 @@ Fittracker/
 │   ├── config/
 │   │   └── db.js                 # PostgreSQL connection pool
 │   ├── controllers/
-│   │   ├── authController.js     # Signup, login, profile CRUD + BMR calc
-│   │   ├── dashboardController.js# Dashboard summary, weekly report, weight log
-│   │   ├── exerciseController.js # Exercise library + workout log CRUD
-│   │   ├── foodController.js     # Food log CRUD
-│   │   └── progressController.js # Daily calorie tracking, deficit tracking, weight updates
+│   │   ├── authController.js         # Signup, login, profile CRUD + BMR calc
+│   │   ├── dashboardController.js    # Dashboard summary, weekly report, weight log
+│   │   ├── exerciseController.js     # Exercise library + workout log CRUD
+│   │   ├── foodController.js         # Food log CRUD
+│   │   ├── foodPredictController.js  # Fuzzy-match autofill fallback (/food/predict)
+│   │   ├── foodReferenceController.js# Autocomplete search, paginated list, detail view for food_nutrition_reference
+│   │   ├── suggestionController.js   # "Suggest a meal" / "Surprise me" combinations
+│   │   └── progressController.js     # Daily calorie tracking, deficit tracking, weight updates
 │   ├── middleware/
 │   │   └── auth.js               # JWT verification middleware
 │   ├── models/
-│   │   └── schema.sql            # Full DB schema + exercise seed data
+│   │   ├── schema.sql                        # Full DB schema + exercise seed data
+│   │   ├── food_nutrition_reference_schema.sql
+│   │   └── meal_combinations_schema.sql
+│   ├── services/
+│   │   └── foodMatchService.js   # Fuzzy-matching logic behind /food/predict
+│   ├── scripts/
+│   │   ├── importFoodNutritionReference.js   # Seeds food_nutrition_reference
+│   │   └── importMealCombinations.js         # Seeds meal_combinations
 │   ├── routes/
 │   │   ├── authRoutes.js
 │   │   ├── dashboardRoutes.js
@@ -155,18 +176,22 @@ Fittracker/
     │   └── index.html
     ├── src/
     │   ├── components/
-    │   │   ├── Layout.tsx         # Wraps pages with Navbar
-    │   │   ├── Navbar.tsx         # Top navigation with glassmorphism styling
-    │   │   └── ProtectedRoute.tsx # Auth guard component
+    │   │   ├── Layout.tsx                  # Wraps pages with Navbar
+    │   │   ├── Navbar.tsx                  # Top navigation with glassmorphism styling
+    │   │   ├── ProtectedRoute.tsx          # Auth guard component
+    │   │   ├── FoodAutocompleteInput.tsx   # Debounced reference-table autocomplete + servings-scaled autofill
+    │   │   └── SuggestMealPanel.tsx        # "Suggest a meal" / "Surprise me" UI
     │   ├── context/
     │   │   └── AuthContext.tsx    # Global auth state (user + token)
     │   ├── pages/
+    │   │   ├── LandingPage.tsx
     │   │   ├── LoginPage.tsx
     │   │   ├── SignupPage.tsx
-    │   │   ├── HomePage.tsx       # Dashboard
-    │   │   ├── FoodPage.tsx       # Food tracker
-    │   │   ├── ExercisePage.tsx   # Exercise library + workout logger
-    │   │   └── ProfilePage.tsx    # Profile editor
+    │   │   ├── HomePage.tsx           # Dashboard
+    │   │   ├── FoodPage.tsx           # Food tracker
+    │   │   ├── FoodDatabasePage.tsx   # Food Database — browse/search/sort the reference table
+    │   │   ├── ExercisePage.tsx       # Exercise library + workout logger
+    │   │   └── ProfilePage.tsx        # Profile editor
     │   ├── services/
     │   │   └── api.ts             # All Axios API calls, grouped by domain
     │   ├── types/
@@ -197,6 +222,12 @@ Seven tables power the application:
 
 **`weight_history`** — Snapshots created when the user clicks **Update Weight**: stores week range, old/new weight, accumulated calorie deficit, and weight change.
 
+Two additional reference tables (not user-owned — shared, read-only lookup data) back the Food Tracker's autofill, the Suggest-a-Meal feature, and the Food Database page:
+
+**`food_nutrition_reference`** — ~290 seeded foods with full nutrition data: macros (calories, protein, carbs, fat, fiber, sugar, saturated fat), micronutrients (sodium, potassium, calcium, iron, magnesium, phosphorus, zinc), and vitamins (A, B1, B2, B3, B5, B6, B9, B12, C, D, E, K). Unique on `(food_name, serving_quantity)`.
+
+**`meal_combinations`** / **`meal_combination_items`** — Seeded food combinations per meal type (breakfast/lunch/dinner/snack), each linking back to `food_nutrition_reference` rows via a quantity multiplier, used by the Suggest-a-Meal feature.
+
 Indexes are created on `(user_id, date)` for foods and workout_logs, and `exercise_type` for fast category filtering.
 
 ---
@@ -216,6 +247,12 @@ All endpoints are prefixed with `/api`. Protected endpoints require the `Authori
 ### Food — `/api/food`
 | Method | Path | Auth | Description |
 |---|---|---|---|
+| GET | `/predict?q=` | ✅ | Fuzzy-match a typed food name against `food_nutrition_reference`; returns a confident prediction or ranked candidate matches |
+| GET | `/search?q=` | ✅ | Live autocomplete — up to 10 ranked matches from `food_nutrition_reference` |
+| GET | `/reference?search=&sortBy=&sortDir=&page=&pageSize=` | ✅ | Paginated/sortable/searchable browse of the full `food_nutrition_reference` table (powers the Food Database page) |
+| GET | `/reference/:id` | ✅ | Full nutrition detail (all ~25 fields) for one reference food |
+| GET | `/suggest?mealType=&targetCalories=&targetProtein=&exclude=` | ✅ | Best-match seeded meal combination for a meal type against remaining targets |
+| GET | `/random?mealType=` | ✅ | A random seeded meal combination for a meal type, ignoring targets |
 | POST | `/add` | ✅ | Log a food entry |
 | GET | `/today` | ✅ | Today's food log + daily totals |
 | GET | `/history` | ✅ | Full food history grouped by date |
@@ -291,6 +328,16 @@ GET /api/health
    \i models/schema.sql
    ```
    Or paste the contents of `models/schema.sql` directly into your DB console (e.g., Neon's SQL editor).
+
+   Then create the food reference tables and seed them (powers autofill, Suggest-a-Meal, and the Food Database page):
+   ```sql
+   \i models/food_nutrition_reference_schema.sql
+   \i models/meal_combinations_schema.sql
+   ```
+   ```bash
+   node scripts/importFoodNutritionReference.js
+   node scripts/importMealCombinations.js
+   ```
 
 5. Start the development server:
    ```bash

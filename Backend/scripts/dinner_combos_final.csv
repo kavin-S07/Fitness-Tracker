@@ -1,0 +1,136 @@
+id,name,calories,protein,carbs,fat
+1,2 Set Dosa + 150g Chicken Curry + Avial/Kootu,521,28.5,50.9,22.6
+2,2 Rava Idli + 200g Egg Curry + Sambar,521,20.5,47.7,27.2
+3,2 Thinai Dosa + 1 Omelette + Rasam,517,21.2,51.4,24.3
+4,2 Rava Idli + 3 Boiled Eggs + Avial/Kootu,520,26.1,41.3,27.2
+5,100g White Rice + 200g Paneer Curry + Curd,519,20.5,40.9,30.6
+6,3 Idli + 250g Dal Fry + Curd,521,22.2,76.4,13.5
+7,1 Onion Dosa + 150g Mutton Curry + Sambar,520,30.3,42.6,25.5
+8,3 Rava Idli + 100g Grilled Chicken + Poriyal,521,39.8,53.8,15.6
+9,3 Rava Idli + 100g Tandoori Chicken + Poriyal,521,33.6,54.9,18.8
+10,2 Ragi Dosa + 150g Fish Curry + Sambar,521,31.1,60.9,16.5
+11,2 Wheat Dosa + 100g Fish Fry + Poriyal,520,27.9,58.0,20.9
+12,3 Ragi Idli + 150g Paneer Butter Masala + Curd,524,20.7,49.7,27.4
+13,2 Chapati + 200g Rajma / Chole + Rasam,518,20.0,85.4,12.1
+14,1 Adai + 150g Chana Sundal + Poriyal,518,22.1,69.6,16.9
+15,2 Plain Dosa + 50g Soya Chunks + Avial/Kootu,520,34.0,70.4,11.8
+16,2 Kambu Dosa + 150g Greek Yogurt + Avial/Kootu,520,23.5,62.1,19.4
+17,2 Ragi Dosa + 150g Prawn Curry + Sambar,521,31.4,61.9,16.5
+18,2 Wheat Dosa + 150g Sprouts Sundal + Sambar,518,20.7,82.2,13.2
+19,3 Rava Idli + 100g Chicken Curry + Avial/Kootu,522,24.1,57.9,21.7
+20,3 Ragi Idli + 200g Egg Curry + Sambar,519,20.5,55.7,22.6
+21,2 Wheat Dosa + 1 Omelette + Sambar,516,22.7,56.9,23.2
+22,2 Plain Dosa + 3 Boiled Eggs + Rasam,518,25.1,51.4,22.8
+23,1 Adai + 150g Paneer Curry + Poriyal,518,21.1,44.5,29.1
+24,2 Chapati + 200g Dal Fry + Curd,513,21.1,78.5,13.6
+25,150g Millet Rice + 150g Mutton Curry + Sambar,520,31.9,46.7,22.2
+26,2 Onion Dosa + 100g Grilled Chicken,521,38.2,59.0,13.2
+27,2 Onion Dosa + 100g Tandoori Chicken,521,32.0,60.1,16.4
+28,2 Thinai Dosa + 150g Fish Curry + Curd,521,33.9,52.3,18.1
+29,2 Kambu Dosa + 100g Fish Fry + Rasam,520,26.7,56.0,20.4
+30,150g Millet Rice + 150g Paneer Butter Masala + Curd,516,21.2,44.8,28.3
+31,2 Rava Idli + 200g Rajma / Chole + Curd,517,20.5,71.9,16.8
+32,1 Uthappam + 150g Chana Sundal + Curd,522,20.2,74.2,15.7
+33,3 Rava Idli + 50g Soya Chunks + Sambar,520,35.3,71.0,10.5
+34,2 Ragi Dosa + 200g Greek Yogurt + Curd,519,27.5,60.9,18.4
+35,2 Thinai Dosa + 150g Prawn Curry + Curd,521,34.2,53.4,18.1
+36,1 Adai + 150g Sprouts Sundal + Avial/Kootu,514,21.6,67.0,17.9
+37,100g Puttu + 150g Chicken Curry + Sambar,518,28.4,57.9,18.9
+38,150g Millet Rice + 200g Egg Curry + Poriyal,519,20.5,50.2,25.3
+39,100g Puttu + 1 Omelette + Curd,516,20.6,51.1,25.4
+40,2 Ragi Dosa + 2 Boiled Eggs + Avial/Kootu,518,21.2,58.7,21.7
+41,2 Chapati + 150g Paneer Curry + Curd,523,21.4,54.2,26.0
+42,1 Adai + 250g Dal Fry + Rasam,527,22.5,73.0,15.8
+43,2 Wheat Dosa + 100g Mutton Curry + Avial/Kootu,519,26.6,57.5,21.9
+44,1 Parotta + 100g Grilled Chicken + Avial/Kootu,521,39.6,50.6,17.1
+45,1 Parotta + 100g Tandoori Chicken + Avial/Kootu,521,33.4,51.7,20.3
+46,2 Onion Dosa + 100g Fish Curry + Rasam,518,23.0,66.2,17.2
+47,2 Plain Dosa + 100g Fish Fry + Curd,521,27.4,53.5,21.9
+48,2 Wheat Dosa + 150g Paneer Butter Masala,514,20.4,52.4,27.0
+49,3 Ragi Idli + 200g Rajma / Chole + Curd,515,20.5,79.9,12.2
+50,2 Chapati + 150g Chana Sundal + Curd,523,22.4,79.3,13.9
+51,3 Set Dosa + 50g Soya Chunks + Rasam,522,33.2,76.8,8.9
+52,2 Plain Dosa + 200g Greek Yogurt + Poriyal,518,25.2,61.0,19.6
+53,2 Onion Dosa + 100g Prawn Curry + Rasam,518,23.2,66.9,17.2
+54,3 Chapati + 100g Sprouts Sundal + Curd,530,21.0,88.4,11.8
+55,2 Wheat Dosa + 150g Chicken Curry + Poriyal,523,31.2,58.6,19.5
+56,2 Chapati + 200g Egg Curry + Rasam,518,21.2,56.8,23.5
+57,2 Kambu Dosa + 1 Omelette + Rasam,525,21.0,54.2,24.5
+58,2 Appam + 3 Boiled Eggs + Avial/Kootu,522,24.1,45.3,26.6
+59,2 Ragi Idli + 200g Paneer Curry + Sambar,517,20.1,42.7,29.8
+60,2 Wheat Dosa + 250g Dal Fry,531,21.3,83.6,13.3
+61,2 Set Dosa + 150g Mutton Curry + Rasam,522,29.6,46.0,24.6
+62,3 Chapati + 100g Grilled Chicken + Rasam,523,42.1,70.2,8.7
+63,3 Chapati + 100g Tandoori Chicken + Rasam,523,35.9,71.3,11.9
+64,3 Chapati + 100g Fish Curry + Sambar,517,27.8,76.7,12.1
+65,2 Set Dosa + 100g Fish Fry + Avial/Kootu,518,25.3,50.3,24.0
+66,2 Rava Idli + 150g Paneer Butter Masala + Curd,526,20.7,41.6,32.0
+67,1 Adai + 200g Rajma / Chole + Curd,527,24.1,71.7,16.2
+68,2 Wheat Dosa + 150g Chana Sundal + Rasam,516,20.6,81.6,13.2
+69,2 Kambu Dosa + 50g Soya Chunks + Poriyal,522,35.2,71.7,10.2
+70,3 Chapati + 200g Greek Yogurt,518,28.5,73.4,13.6
+71,3 Chapati + 100g Prawn Curry + Sambar,517,28.0,77.4,12.1
+72,1 Parotta + 150g Sprouts Sundal + Curd,536,20.3,73.8,18.0
+73,2 Kambu Dosa + 150g Chicken Curry + Rasam,523,30.0,56.6,19.0
+74,150g White Rice + 200g Egg Curry + Curd,524,20.5,55.2,23.3
+75,2 Plain Dosa + 1 Omelette + Curd,526,21.7,51.7,26.0
+76,3 Idiyappam + 3 Boiled Eggs + Avial/Kootu,518,24.6,52.3,22.6
+77,1 Plain Dosa + 200g Paneer Curry + Curd,514,20.9,35.1,33.1
+78,150g Millet Rice + 250g Dal Fry + Curd,533,22.1,76.1,14.7
+79,100g Puttu + 150g Mutton Curry,518,29.1,48.4,23.1
+80,2 Kambu Dosa + 100g Grilled Chicken + Poriyal,515,40.2,55.2,13.6
+81,2 Kambu Dosa + 100g Tandoori Chicken + Poriyal,515,34.0,56.3,16.8
+82,3 Set Dosa + 100g Fish Curry + Poriyal,517,23.4,66.1,17.5
+83,1 Uthappam + 100g Fish Fry + Avial/Kootu,523,25.7,51.8,23.4
+84,2 Chapati + 150g Paneer Butter Masala + Rasam,528,20.2,55.1,27.3
+85,2 Thinai Dosa + 150g Rajma / Chole + Curd,530,20.4,76.5,15.2
+86,2 Rava Idli + 150g Chana Sundal + Curd,495,20.2,66.1,16.7
+87,2 Thinai Dosa + 50g Soya Chunks + Poriyal,514,35.4,68.9,10.1
+88,3 Set Dosa + 150g Greek Yogurt + Curd,522,23.4,66.0,18.1
+89,3 Set Dosa + 100g Prawn Curry + Poriyal,517,23.6,66.8,17.5
+90,2 Ragi Dosa + 150g Sprouts Sundal + Curd,542,20.3,80.7,15.6
+91,2 Plain Dosa + 150g Chicken Curry + Curd,524,30.7,54.1,20.5
+92,3 Idiyappam + 200g Egg Curry + Curd,515,20.2,54.3,23.6
+93,1 Uthappam + 1 Omelette + Avial/Kootu,528,20.0,50.0,27.5
+94,2 Set Dosa + 3 Boiled Eggs + Poriyal,518,24.9,47.0,24.9
+95,3 Idli + 200g Paneer Curry + Rasam,527,20.8,46.9,28.8
+96,1 Onion Dosa + 250g Dal Fry + Curd,534,20.4,72.0,17.9
+97,2 Kambu Dosa + 100g Mutton Curry + Curd,522,27.3,54.3,21.4
+98,3 Set Dosa + 100g Grilled Chicken + Rasam,514,38.2,60.3,12.3
+99,3 Set Dosa + 100g Tandoori Chicken + Rasam,514,32.0,61.4,15.5
+100,2 Plain Dosa + 150g Fish Curry + Poriyal,516,30.0,56.6,18.8
+101,2 Chapati + 100g Fish Fry + Avial/Kootu,524,27.9,56.9,21.6
+102,1 Adai + 150g Paneer Butter Masala + Rasam,510,21.6,41.8,29.5
+103,3 Idli + 200g Rajma / Chole + Avial/Kootu,531,20.2,80.0,14.6
+104,3 Ragi Idli + 150g Chana Sundal + Curd,493,20.2,74.1,12.1
+105,2 Onion Dosa + 50g Soya Chunks,528,33.2,75.5,9.8
+106,1 Parotta + 200g Greek Yogurt + Sambar,517,26.3,58.4,19.8
+107,2 Plain Dosa + 150g Prawn Curry + Poriyal,516,30.3,57.6,18.8
+108,2 Thinai Dosa + 150g Sprouts Sundal + Curd,546,21.9,76.5,16.2
+109,2 Thinai Dosa + 150g Chicken Curry + Rasam,515,30.2,53.8,18.8
+110,1 Adai + 200g Egg Curry + Curd,527,25.3,43.1,27.6
+111,2 Chapati + 1 Omelette + Avial/Kootu,529,22.2,55.1,25.7
+112,3 Ragi Idli + 3 Boiled Eggs + Avial/Kootu,518,26.1,49.3,22.6
+113,2 Idiyappam + 200g Paneer Curry + Curd,513,20.3,40.3,30.8
+114,3 Idiyappam + 250g Dal Fry + Curd,542,20.1,83.9,13.8
+115,2 Thinai Dosa + 100g Mutton Curry + Sambar,518,26.3,55.9,20.2
+116,2 Plain Dosa + 100g Grilled Chicken + Avial/Kootu,513,39.0,53.9,15.1
+117,2 Plain Dosa + 100g Tandoori Chicken + Avial/Kootu,513,32.8,55.0,18.3
+118,2 Adai + 100g Fish Curry,524,32.0,62.8,15.3
+119,100g Puttu + 100g Fish Fry + Poriyal,524,24.6,56.6,22.1
+120,3 Idli + 150g Paneer Butter Masala + Sambar,508,20.1,49.6,26.1
+121,150g Millet Rice + 200g Rajma / Chole + Curd,506,20.9,75.1,13.1
+122,2 Thinai Dosa + 150g Chana Sundal + Rasam,548,20.6,80.2,15.2
+123,1 Parotta + 50g Soya Chunks + Avial/Kootu,528,34.6,67.1,13.8
+124,2 Thinai Dosa + 200g Greek Yogurt + Curd,523,29.1,56.7,19.0
+125,2 Adai + 100g Prawn Curry,524,32.2,63.5,15.3
+126,2 Kambu Dosa + 150g Sprouts Sundal + Curd,554,21.7,79.2,16.4
+127,1 Uthappam + 150g Chicken Curry + Avial/Kootu,526,28.9,52.4,22.0
+128,2 Thinai Dosa + 150g Egg Curry + Curd,530,21.3,55.0,23.7
+129,1 Adai + 1 Omelette + Avial/Kootu,511,23.6,41.7,27.9
+130,2 Thinai Dosa + 2 Boiled Eggs + Avial/Kootu,522,22.8,54.5,22.3
+131,100g Millet Rice + 200g Paneer Curry + Sambar,511,20.4,39.5,30.4
+132,3 Ragi Idli + 250g Dal Fry + Curd,542,21.6,80.9,13.8
+133,2 Ragi Dosa + 100g Mutton Curry + Poriyal,523,24.2,59.4,21.4
+134,2 Ragi Dosa + 100g Grilled Chicken + Avial/Kootu,527,39.6,57.5,14.7
+135,2 Ragi Dosa + 100g Tandoori Chicken + Avial/Kootu,527,33.4,58.6,17.9

@@ -1,0 +1,136 @@
+id,name,calories,protein,carbs,fat
+1,100g Muesli with Milk + 3 Egg Whites + Buttermilk,211,16.8,24.6,4.7
+2,100g Boiled Corn + 30g Soya Chunks,200,19.0,30.9,1.6
+3,1 Banana + 75g Chicken Breast + Buttermilk,201,21.2,24.4,3.1
+4,1 Banana + 75g Tuna + Buttermilk,198,21.3,24.4,2.1
+5,1 Guava + 150g Greek Yogurt,214,16.1,20.3,8.4
+6,1 Guava + 75g Paneer,267,16.3,15.2,16.5
+7,1 Guava + 2 Boiled Eggs,224,15.2,15.5,11.5
+8,100g Boiled Corn + 150g Sprouts Sundal + Buttermilk,336,15.3,50.4,9.9
+9,100g Boiled Corn + 50g Cheese + Buttermilk,295,15.1,23.8,16.9
+10,1 Guava + 150g Chana Sundal + Buttermilk,336,15.6,48.0,9.9
+11,1 Guava + 150g Chickpea Sundal + Buttermilk,336,15.8,47.1,10.2
+12,75g Roasted Chana + Buttermilk,299,15.1,45.3,5.5
+13,100g Muesli with Milk + 3 Egg Whites,189,15.7,23.0,3.5
+14,1 Apple + 30g Soya Chunks + Buttermilk,204,17.1,32.2,1.5
+15,100g Muesli with Milk + 50g Chicken Breast,198,17.6,22.4,4.2
+16,100g Muesli with Milk + 50g Tuna,196,17.6,22.4,3.6
+17,100g Fruit Salad + 150g Greek Yogurt + Buttermilk,214,15.2,19.1,8.8
+18,100g Fruit Salad + 75g Paneer + Buttermilk,267,15.4,14.0,16.9
+19,1 Guava + 2 Boiled Eggs + Buttermilk,246,16.3,17.1,12.7
+20,100g Cornflakes with Milk + 50g Cheese + Buttermilk,304,15.8,21.0,17.2
+21,1 Orange + 75g Roasted Chana,338,15.2,59.0,4.4
+22,100g Cornflakes with Milk + 3 Egg Whites + Buttermilk,178,16.0,20.4,3.3
+23,1 Guava + 30g Soya Chunks + Buttermilk,194,19.3,25.8,2.2
+24,100g Pomegranate + 75g Chicken Breast + Buttermilk,195,21.8,20.3,4.0
+25,100g Boiled Corn + 75g Tuna + Buttermilk,205,23.6,22.6,3.3
+26,100g Fruit Bowl + 150g Greek Yogurt + Buttermilk,220,15.2,20.4,8.9
+27,100g Fruit Bowl + 75g Paneer + Buttermilk,273,15.4,15.3,17.0
+28,100g Boiled Corn + 2 Boiled Eggs,252,16.0,22.2,12.1
+29,100g Muesli with Milk + 50g Cheese,315,15.5,23.6,17.4
+30,100g Boiled Corn + 3 Egg Whites + Buttermilk,169,15.3,23.2,3.0
+31,50g Soya Chunks + Buttermilk,194,27.1,18.1,1.4
+32,100g Cornflakes with Milk + 75g Chicken Breast,195,23.1,18.2,3.4
+33,100g Pomegranate + 75g Tuna + Buttermilk,192,21.9,20.3,3.0
+34,1 Orange + 150g Greek Yogurt + Buttermilk,228,15.8,22.9,8.8
+35,1 Orange + 75g Paneer + Buttermilk,282,16.0,17.8,16.9
+36,100g Pomegranate + 2 Boiled Eggs + Buttermilk,261,15.4,21.5,13.0
+37,100g Muesli with Milk + 50g Cheese + Buttermilk,337,16.6,25.2,18.6
+38,50g Popcorn + 3 Egg Whites,244,17.2,39.5,2.5
+39,1 Banana + 30g Soya Chunks,192,16.7,32.7,0.4
+40,100g Boiled Corn + 75g Chicken Breast + Buttermilk,208,23.5,22.6,4.3
+41,100g Cornflakes with Milk + 75g Tuna,192,23.2,18.2,2.4
+42,100g Pomegranate + 150g Greek Yogurt,228,15.2,24.7,8.7
+43,100g Pomegranate + 75g Paneer,282,15.4,19.6,16.8
+44,100g Cornflakes with Milk + 2 Boiled Eggs,261,16.7,19.4,12.4
+45,1 Veg Sandwich + 3 Egg Whites,246,17.2,35.4,3.5
+46,100g Pomegranate + 30g Soya Chunks + Buttermilk,208,18.4,30.2,2.5
+47,1 Apple + 75g Chicken Breast + Buttermilk,190,20.5,22.3,3.0
+48,1 Apple + 75g Tuna + Buttermilk,187,20.6,22.3,2.0
+49,1 Guava + 150g Greek Yogurt + Buttermilk,236,17.2,21.9,9.6
+50,1 Guava + 75g Paneer + Buttermilk,289,17.4,16.8,17.7
+51,100g Boiled Corn + 2 Boiled Eggs + Buttermilk,274,17.1,23.8,13.3
+52,50g Puffed Rice + 3 Egg Whites + Buttermilk,254,15.1,42.2,1.7
+53,100g Cornflakes with Milk + 30g Soya Chunks,208,19.7,28.1,1.9
+54,100g Cornflakes with Milk + 50g Chicken Breast + Buttermilk,187,17.9,19.8,4.0
+55,100g Cornflakes with Milk + 75g Tuna + Buttermilk,214,24.3,19.8,3.6
+56,100g Boiled Corn + 150g Greek Yogurt,242,16.9,27.0,9.0
+57,100g Muesli with Milk + 50g Paneer + Buttermilk,292,15.2,24.6,14.8
+58,100g Cornflakes with Milk + 2 Boiled Eggs + Buttermilk,283,17.8,21.0,13.6
+59,50g Popcorn + 3 Egg Whites + Buttermilk,266,18.4,41.1,3.8
+60,1 Banana + 30g Soya Chunks + Buttermilk,214,17.8,34.3,1.6
+61,100g Boiled Corn + 75g Chicken Breast,186,22.4,21.0,3.1
+62,100g Boiled Corn + 75g Tuna,183,22.5,21.0,2.1
+63,1 Apple + 150g Greek Yogurt + Buttermilk,246,15.0,28.3,8.9
+64,100g Boiled Corn + 75g Paneer,295,17.1,21.9,17.1
+65,100g Muesli with Milk + 2 Boiled Eggs,294,17.5,23.6,13.8
+66,1 Veg Sandwich + 3 Egg Whites + Buttermilk,268,18.3,37.0,4.7
+67,1 Orange + 30g Soya Chunks + Buttermilk,186,17.9,26.8,1.4
+68,1 Guava + 75g Chicken Breast + Buttermilk,180,22.8,15.9,3.7
+69,100g Muesli with Milk + 50g Tuna + Buttermilk,218,18.8,24.0,4.8
+70,100g Pomegranate + 150g Greek Yogurt + Buttermilk,250,16.3,26.3,9.9
+71,1 Apple + 75g Paneer + Buttermilk,299,15.2,23.2,17.0
+72,100g Muesli with Milk + 2 Boiled Eggs + Buttermilk,316,18.6,25.2,15.0
+73,50g Biscuit/Khakhra + 3 Egg Whites + Buttermilk,296,15.8,36.4,9.3
+74,100g Pomegranate + 30g Soya Chunks,186,17.3,28.6,1.3
+75,100g Muesli with Milk + 50g Chicken Breast + Buttermilk,220,18.7,24.0,5.5
+76,1 Guava + 75g Tuna + Buttermilk,177,22.8,15.9,2.7
+77,100g Cornflakes with Milk + 150g Greek Yogurt,250,17.6,24.2,9.3
+78,100g Pomegranate + 75g Paneer + Buttermilk,304,16.5,21.2,18.0
+79,50g Puffed Rice + 2 Boiled Eggs,338,15.8,41.2,10.8
+80,1 Apple + 30g Soya Chunks,182,16.0,30.6,0.3
+81,1 Banana + 75g Chicken Breast,179,20.1,22.8,1.9
+82,1 Banana + 75g Tuna,176,20.2,22.8,0.9
+83,1 Banana + 150g Greek Yogurt + Buttermilk,256,15.7,30.4,9.0
+84,100g Cornflakes with Milk + 75g Paneer,304,17.8,19.1,17.4
+85,100g Fruit Salad + 50g Soya Chunks,218,26.6,28.0,0.3
+86,1 Orange + 75g Chicken Breast + Buttermilk,173,21.3,16.9,2.9
+87,1 Orange + 75g Tuna + Buttermilk,170,21.4,16.9,1.9
+88,100g Muesli with Milk + 100g Greek Yogurt + Buttermilk,257,15.0,28.0,9.4
+89,1 Banana + 75g Paneer + Buttermilk,310,15.9,25.3,17.1
+90,100g Boiled Corn + 30g Soya Chunks + Buttermilk,222,20.1,32.5,2.8
+91,100g Pomegranate + 75g Chicken Breast,173,20.7,18.7,2.8
+92,100g Pomegranate + 75g Tuna,170,20.8,18.7,1.8
+93,100g Boiled Corn + 150g Greek Yogurt + Buttermilk,264,18.0,28.6,10.2
+94,100g Boiled Corn + 75g Paneer + Buttermilk,317,18.2,23.5,18.3
+95,100g Fruit Bowl + 30g Soya Chunks + Buttermilk,178,17.3,24.3,1.5
+96,1 Apple + 75g Chicken Breast,168,19.4,20.7,1.8
+97,1 Apple + 75g Tuna,165,19.5,20.7,0.8
+98,100g Cornflakes with Milk + 150g Greek Yogurt + Buttermilk,272,18.7,25.8,10.5
+99,50g Popcorn + 50g Paneer,326,15.6,39.5,12.7
+100,100g Fruit Bowl + 50g Soya Chunks,224,26.6,29.3,0.5
+101,100g Fruit Bowl + 75g Chicken Breast + Buttermilk,164,20.8,14.4,3.0
+102,100g Fruit Bowl + 75g Tuna + Buttermilk,161,20.8,14.4,2.0
+103,100g Muesli with Milk + 150g Greek Yogurt,284,18.4,28.4,10.7
+104,100g Cornflakes with Milk + 75g Paneer + Buttermilk,326,18.9,20.7,18.6
+105,1 Guava + 30g Soya Chunks,172,18.2,24.2,1.1
+106,50g Puffed Rice + 50g Chicken Breast,242,15.9,40.0,1.2
+107,50g Puffed Rice + 50g Tuna,240,15.9,40.0,0.6
+108,50g Popcorn + 100g Greek Yogurt,290,15.4,42.9,7.2
+109,1 Veg Sandwich + 50g Paneer,328,15.6,35.4,13.6
+110,100g Fruit Salad + 30g Soya Chunks + Buttermilk,172,17.3,23.0,1.4
+111,1 Guava + 75g Chicken Breast,158,21.6,14.3,2.5
+112,1 Guava + 75g Tuna,155,21.7,14.3,1.5
+113,1 Veg Sandwich + 100g Greek Yogurt,292,15.4,38.8,8.2
+114,100g Muesli with Milk + 75g Paneer,337,18.6,23.3,18.8
+115,50g Soya Chunks,172,26.0,16.5,0.2
+116,100g Fruit Salad + 75g Chicken Breast + Buttermilk,158,20.8,13.1,2.9
+117,100g Fruit Salad + 75g Tuna + Buttermilk,155,20.8,13.1,1.9
+118,50g Popcorn + 100g Greek Yogurt + Buttermilk,312,16.6,44.5,8.4
+119,100g Cornflakes with Milk + 30g Soya Chunks + Buttermilk,230,20.8,29.7,3.1
+120,1 Orange + 75g Chicken Breast,151,20.2,15.3,1.7
+121,50g Popcorn + 50g Tuna,252,19.2,38.9,2.6
+122,1 Veg Sandwich + 100g Greek Yogurt + Buttermilk,314,16.5,40.4,9.4
+123,1 Orange + 50g Soya Chunks,234,27.2,31.8,0.3
+124,50g Popcorn + 50g Chicken Breast,254,19.1,38.9,3.3
+125,1 Orange + 75g Tuna,148,20.3,15.3,0.7
+126,50g Puffed Rice + 150g Greek Yogurt,327,16.7,46.0,7.7
+127,100g Muesli with Milk + 30g Soya Chunks,242,20.5,32.3,3.4
+128,1 Veg Sandwich + 50g Chicken Breast,255,19.1,34.8,4.2
+129,1 Veg Sandwich + 50g Tuna,253,19.1,34.8,3.6
+130,100g Muesli with Milk + 30g Soya Chunks + Buttermilk,264,21.6,33.9,4.5
+131,100g Fruit Bowl + 75g Chicken Breast,142,19.6,12.8,1.8
+132,100g Fruit Bowl + 75g Tuna,139,19.7,12.8,0.8
+133,50g Puffed Rice + 30g Soya Chunks,285,18.8,49.9,0.3
+134,50g Puffed Rice + 50g Chicken Breast + Buttermilk,264,17.0,41.6,2.5
+135,50g Puffed Rice + 50g Tuna + Buttermilk,262,17.1,41.6,1.8
