@@ -50,6 +50,8 @@ const ITEMS_PER_PAGE = 7;
 // ------------------------------------------------------------------
 // Helper: Format date safely
 // ------------------------------------------------------------------
+// Used throughout the Food page whenever a date needs to be displayed.
+// Safely parses a date string and returns it broken into day/month/year/weekday parts.
 function formatDate(dateStr: string) {
   const raw = typeof dateStr === 'string' && dateStr.includes('T')
     ? dateStr.split('T')[0]
@@ -80,6 +82,8 @@ function formatDate(dateStr: string) {
 // ------------------------------------------------------------------
 // Sub-component: Progress Ring
 // ------------------------------------------------------------------
+// Used on the Food page to show calorie/protein progress toward the daily target.
+// Renders a circular progress ring with a percentage and label.
 const ProgressRing: React.FC<{
   value: number; max: number; size?: number; color: string; label: string; sub: string;
 }> = ({ value, max, size = 88, color, label, sub }) => {
@@ -111,6 +115,8 @@ const ProgressRing: React.FC<{
 // ------------------------------------------------------------------
 // Main Component
 // ------------------------------------------------------------------
+// Used as the route for /food.
+// Renders the food tracker: today's log, meal suggestions, history, and the add/edit food forms.
 const FoodPage: React.FC = () => {
   const [history, setHistory]     = useState<HistoryRow[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -156,6 +162,8 @@ const FoodPage: React.FC = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   // ------------------------------------------------------------------
+  // Used when the Food page first loads.
+  // Fetches the user's full food logging history (daily totals).
   const loadHistory = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -172,6 +180,8 @@ const FoodPage: React.FC = () => {
   useEffect(() => { loadHistory(); }, [loadHistory]);
 
   // Add food handler
+  // Used when the user submits the "add food" form.
+  // Validates and saves the new food entry, then refreshes the history/detail view.
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.food_name.trim())                    { setAddError('Food name is required.');        return; }
@@ -202,6 +212,8 @@ const FoodPage: React.FC = () => {
     }
   };
 
+  // Used when the user clicks a day in the food history to see its breakdown.
+  // Fetches all foods logged on that date along with the day's summary.
   const openDetail = async (date: string) => {
     setDetailDate(date);
     setDetail(null);
@@ -219,9 +231,15 @@ const FoodPage: React.FC = () => {
     }
   };
 
+  // Used when the user closes the day-detail modal.
+  // Clears the currently open day's detail state.
   const closeDetail    = () => { setDetailDate(null); setDetail(null); };
+  // Used when the user clicks a meal category header in the day-detail modal.
+  // Expands or collapses that category's food list.
   const toggleCategory = (cat: string) => setExpandedCats(prev => ({ ...prev, [cat]: !prev[cat] }));
 
+  // Used when the user clicks "Edit" on a logged food entry.
+  // Pre-fills the edit form with that food entry's current values.
   const openEdit = (food: FoodEntry) => {
     setEditFood(food);
     setEditForm({
@@ -237,6 +255,8 @@ const FoodPage: React.FC = () => {
     setEditError(null);
   };
 
+  // Used when the user saves changes in the edit food modal.
+  // Validates and sends the updated food fields to the backend.
   const handleEditSave = async () => {
     if (!editFood) return;
     if (!editForm.food_name.trim())                     { setEditError('Food name is required.'); return; }
@@ -265,6 +285,8 @@ const FoodPage: React.FC = () => {
     }
   };
 
+  // Used when the user confirms deleting a logged food entry.
+  // Deletes the food entry and refreshes the history/detail view.
   const handleDelete = async (id: string | number) => {
     setDeleteLoading(true);
     try {
@@ -280,6 +302,8 @@ const FoodPage: React.FC = () => {
   };
 
   // Open add modal pre-filled with breakdown date
+  // Used when the user clicks "Add food" from within a day's breakdown view.
+  // Opens the add-food form pre-filled with that day's date.
   const openAddForDate = (isoDate: string) => {
     setAddError(null);
     setForm({ food_name: '', calories: '', protein: '', carbs: '', fats: '', fiber: '', category: 'Breakfast', date: isoDate });
@@ -313,8 +337,9 @@ const FoodPage: React.FC = () => {
   const avgProtein     = totalDays > 0 ? Math.round(history.reduce((s, r) => s + r.total_protein,  0) / totalDays) : 0;
   const highestProtein = totalDays > 0 ? Math.max(...history.map(r => r.total_protein)) : 0;
 
+  // Used when rendering the pagination controls on the food history table.
+  // Builds the list of page numbers to display, with "..." for skipped ranges.
   const getPageNumbers = () => {
-    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
     if (currentPage <= 4) return [1, 2, 3, 4, '...', totalPages];
     if (currentPage >= totalPages - 3) return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
     return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];

@@ -4,11 +4,10 @@
 // Drop-in replacement for a plain food-name <input>. Shows a
 // debounced suggestion dropdown backed by food_nutrition_reference
 // as the user types, and autofills calories/protein/carbs/fats
-// (scaled by a servings multiplier) when a suggestion is picked.
+// when a suggestion is picked.
 //
 // The autofilled values are only a starting point — the parent
-// form's fields stay manually editable afterward, and typing again
-// in this input clears the lock so manual entry is never blocked.
+// form's fields stay manually editable afterward.
 // ============================================================
 import React, { useEffect, useRef, useState } from 'react';
 import { foodAPI } from '../services/api';
@@ -27,9 +26,13 @@ interface FoodAutocompleteInputProps {
   onAutofill: (values: NutritionValues) => void;
 }
 
+// Used internally when a suggested food is picked with a serving multiplier.
+// Scales a base nutrition value (e.g. calories) by the given multiplier and rounds it.
 const scale = (base: number, multiplier: number) =>
   Math.round(base * multiplier);
 
+// Used on the "add food" form wherever a user types in a food name.
+// Shows live food suggestions as the user types and autofills nutrition values when one is picked.
 const FoodAutocompleteInput: React.FC<FoodAutocompleteInputProps> = ({
   value,
   onNameChange,
@@ -37,8 +40,6 @@ const FoodAutocompleteInput: React.FC<FoodAutocompleteInputProps> = ({
 }) => {
   const [suggestions, setSuggestions] = useState<FoodReferenceResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [selected, setSelected] = useState<FoodReferenceResult | null>(null);
-  const [servings, setServings] = useState(1);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -67,6 +68,8 @@ const FoodAutocompleteInput: React.FC<FoodAutocompleteInputProps> = ({
     };
   }, [value]);
 
+  // Used when a user selects a food suggestion from the dropdown.
+  // Fills the parent form's calorie/protein/carb/fat fields from the selected food.
   const applyAutofill = (food: FoodReferenceResult, multiplier: number) => {
     onAutofill({
       calories: scale(food.calories_kcal, multiplier),
@@ -76,20 +79,12 @@ const FoodAutocompleteInput: React.FC<FoodAutocompleteInputProps> = ({
     });
   };
 
+  // Used when a user clicks a suggestion in the autocomplete dropdown.
+  // Sets the food name and triggers the nutrition autofill.
   const handleSelect = (food: FoodReferenceResult) => {
-    setSelected(food);
-    setServings(1);
     onNameChange(food.food_name);
     setShowDropdown(false);
     applyAutofill(food, 1);
-  };
-
-  const handleServingsChange = (raw: string) => {
-    const next = parseFloat(raw);
-    setServings(Number.isNaN(next) ? 0 : next);
-    if (selected && !Number.isNaN(next) && next > 0) {
-      applyAutofill(selected, next);
-    }
   };
 
   return (
@@ -102,9 +97,6 @@ const FoodAutocompleteInput: React.FC<FoodAutocompleteInputProps> = ({
         autoComplete="off"
         onChange={e => {
           onNameChange(e.target.value);
-          // Typing again after a selection means the user is correcting
-          // the name — drop the lock and fall back to manual entry.
-          if (selected) setSelected(null);
         }}
         onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
         onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
@@ -124,21 +116,6 @@ const FoodAutocompleteInput: React.FC<FoodAutocompleteInputProps> = ({
         </ul>
       )}
 
-      {selected && (
-        <div className="food-autocomplete-servings">
-          <label>
-            Servings ({selected.serving_quantity} each)
-            <input
-              className="input-field"
-              type="number"
-              min={0.25}
-              step="any"
-              value={servings}
-              onChange={e => handleServingsChange(e.target.value)}
-            />
-          </label>
-        </div>
-      )}
     </div>
   );
 };

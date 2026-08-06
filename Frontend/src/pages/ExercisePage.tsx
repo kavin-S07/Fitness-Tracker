@@ -10,6 +10,8 @@ const MUSCLE_ICONS: Record<string, string> = {
   Abs: '💪', 'Shoulder': '🏋️'
 };
 
+// Used whenever an exercise image URL is displayed.
+// Converts a Google Drive share link into a directly-loadable image URL.
 const toCDNUrl = (url: string): string => {
   if (!url) return '';
   const ucMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
@@ -39,6 +41,8 @@ interface WorkoutDay {
 
 const ITEMS_PER_PAGE = 8;
 
+// Used as the route for /exercise.
+// Renders the workout history and exercise library tabs, plus the "log a workout" flow.
 const ExercisePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'history' | 'library'>('history');
 
@@ -72,6 +76,8 @@ const ExercisePage: React.FC = () => {
     totalVolume: 0
   });
 
+  // Used when the Exercise Library tab first loads.
+  // Fetches the list of exercise categories (muscle groups) and picks the first one as default.
   const loadCategories = useCallback(async () => {
     try {
       const res = await exerciseAPI.getCategories();
@@ -81,6 +87,8 @@ const ExercisePage: React.FC = () => {
     } catch { }
   }, []);
 
+  // Used when the user switches category tabs in the Exercise Library.
+  // Fetches the list of exercises for the selected muscle category.
   const loadExercises = useCallback(async (type: string) => {
     setLoadingExercises(true);
     try {
@@ -92,6 +100,8 @@ const ExercisePage: React.FC = () => {
     finally { setLoadingExercises(false); }
   }, []);
 
+  // Used when the Workout History tab loads or after a new workout is logged.
+  // Fetches all recent workouts, groups them by day, and computes overall stats.
   const loadWorkoutHistory = useCallback(async () => {
     setHistoryLoading(true);
     try {
@@ -169,6 +179,8 @@ const ExercisePage: React.FC = () => {
   // Reset to page 1 when filters change
   useEffect(() => { setCurrentPage(1); }, [searchQuery, filterMuscle, sortOrder]);
 
+  // Used whenever the user searches, filters, or changes sort order on the history tab.
+  // Filters and sorts the workout days based on the current search/filter/sort settings.
   const filteredAndSortedDays = useMemo(() => {
     let filtered = [...workoutDays];
     if (searchQuery.trim()) {
@@ -196,6 +208,8 @@ const ExercisePage: React.FC = () => {
   );
 
   // Build page numbers: always show first, last, current ±1, with ellipsis
+  // Used when rendering the pagination controls on the history tab.
+  // Builds the list of page numbers to show, with "..." for skipped ranges.
   const getPageNumbers = () => {
     const pages: (number | '...')[] = [];
     const range = new Set([1, totalPages, currentPage, currentPage - 1, currentPage + 1]
@@ -208,6 +222,8 @@ const ExercisePage: React.FC = () => {
     return pages;
   };
 
+  // Used when the user clicks "Log Workout" in the logging modal.
+  // Validates the entered sets and saves the workout for the selected exercise.
   const handleLogWorkout = async () => {
     if (!selectedExercise) return;
     setLogError('');
@@ -229,21 +245,33 @@ const ExercisePage: React.FC = () => {
     }
   };
 
+  // Used when the user clicks "Add set" in the logging modal.
+  // Adds a new empty set row to the current workout being logged.
   const addSet = () => setSets(p => [...p, { set_number: p.length + 1, reps: '', weight: '' }]);
+  // Used when the user removes a set row in the logging modal.
+  // Deletes that set and renumbers the remaining sets.
   const removeSet = (i: number) =>
     setSets(p => p.filter((_, idx) => idx !== i).map((s, idx) => ({ ...s, set_number: idx + 1 })));
+  // Used when the user types into a reps or weight field in the logging modal.
+  // Updates that field's value for the given set.
   const updateSet = (i: number, field: 'reps' | 'weight', val: string) =>
     setSets(p => p.map((s, idx) => idx === i ? { ...s, [field]: val } : s));
 
+  // Used when displaying an exercise's difficulty badge in the library.
+  // Picks a badge color based on the exercise's difficulty level.
   const getDifficultyColor = (d: string) =>
     d?.toLowerCase() === 'beginner' ? 'badge-green' :
     d?.toLowerCase() === 'intermediate' ? 'badge-orange' : 'badge-red';
 
+  // Used when displaying a workout day's date on the history tab.
+  // Formats a date string into a readable "Month Day, Year" format.
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' });
   };
 
+  // Used when labeling a workout day card on the history tab.
+  // Builds a friendly name like "Chest + Back Day" from the muscle groups trained.
   const getWorkoutTypeName = (muscleGroups: string[]) => {
     if (muscleGroups.length === 0) return 'Workout';
     if (muscleGroups.length === 1) return `${muscleGroups[0]} Day`;
@@ -251,16 +279,22 @@ const ExercisePage: React.FC = () => {
     return `${muscleGroups.slice(0, 2).join(' + ')} +${muscleGroups.length - 2} Day`;
   };
 
+  // Used when styling icons in a repeating list on the history tab.
+  // Cycles through a fixed color palette based on the item's position.
   const getIconColor = (index: number) => {
     const colors = ['#16a34a', '#ea580c', '#7c3aed', '#f59e0b', '#dc2626'];
     return colors[index % colors.length];
   };
+  // Used when styling icon backgrounds in a repeating list on the history tab.
+  // Cycles through a fixed background palette based on the item's position.
   const getIconBg = (index: number) => {
     const bgs = ['#f0fdf4', '#fff7ed', '#faf5ff', '#fffbeb', '#fef2f2'];
     return bgs[index % bgs.length];
   };
 
   // Group logs by exercise name for the details panel
+  // Used when displaying the details panel for a selected workout day.
+  // Groups that day's logged sets by exercise name for a cleaner display.
   const groupedExercises = useMemo(() => {
     if (!selectedDay) return [];
     return selectedDay.logs.reduce((acc, log) => {

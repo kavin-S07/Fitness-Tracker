@@ -18,6 +18,8 @@ const GOALS = [
   { value: 'maintain',    label: 'Maintain',    icon: '⚖️' },
 ];
 
+// Used as the route for /signup.
+// Renders the 3-step signup form (account, body stats, goal) for creating a new account.
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -31,9 +33,13 @@ const SignupPage: React.FC = () => {
     goal: 'weight_loss', gym_status: true, activity_level: '5', target_weight: '',
   });
 
+  // Used whenever a user types or selects a value in any signup step.
+  // Updates one field of the signup form's stored data.
   const set = (key: keyof FormData, val: string | boolean) =>
     setForm((p) => ({ ...p, [key]: val }));
 
+  // Used when the user clicks "Create Account" on the final signup step.
+  // Submits the completed signup form, logs the new user in, and sends them to the home page.
   const handleSignup = async () => {
     setError('');
     setLoading(true);

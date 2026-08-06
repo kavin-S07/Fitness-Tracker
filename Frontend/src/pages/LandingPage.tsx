@@ -6,11 +6,15 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 // ── Stat counter hook ────────────────────────────────────────
+// Used by the landing page's animated stat numbers (e.g. "10,000+ users").
+// Smoothly counts a number up from 0 to the target value once triggered.
 function useCounter(target: number, duration = 1800, start = false) {
   const [value, setValue] = useState(0);
   useEffect(() => {
     if (!start) return;
     let startTime: number | null = null;
+    // Used automatically on each animation frame while the counter is running.
+    // Calculates the counter's current value for this frame and schedules the next one.
     const step = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
       const progress = Math.min((timestamp - startTime) / duration, 1);
@@ -24,6 +28,8 @@ function useCounter(target: number, duration = 1800, start = false) {
 }
 
 // ── Intersection observer for scroll animations ──────────────
+// Used by sections on the landing page that fade/slide in as the user scrolls to them.
+// Tracks whether an element has scrolled into view, to trigger its entrance animation.
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -134,6 +140,8 @@ const STEPS = [
 ];
 
 // ── Component ────────────────────────────────────────────────
+// Used as the route for / and /landing (the public marketing page).
+// Renders the app's public homepage: hero section, stats, features, and how-it-works steps.
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -151,6 +159,8 @@ const LandingPage: React.FC = () => {
 
   // Parallax hero bg on scroll (desktop only)
   useEffect(() => {
+    // Used automatically as the user scrolls the page (desktop only).
+    // Moves the hero background slightly for a parallax scrolling effect.
     const handleScroll = () => {
       if (heroRef.current && window.innerWidth > 980) {
         heroRef.current.style.backgroundPositionY = `${window.scrollY * 0.35}px`;
@@ -162,11 +172,15 @@ const LandingPage: React.FC = () => {
 
   // Close mobile menu on resize to desktop
   useEffect(() => {
+    // Used automatically whenever the browser window is resized.
+    // Closes the mobile menu if the window is widened to desktop size.
     const handleResize = () => { if (window.innerWidth > 768) setMenuOpen(false); };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Used when the user clicks a "Get Started" / "Go to Dashboard" button on the landing page.
+  // Sends logged-in users to the dashboard, and everyone else to the login page.
   const handleHomeClick = () => {
     navigate(user ? '/home' : '/login');
   };

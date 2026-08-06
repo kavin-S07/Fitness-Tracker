@@ -13,12 +13,16 @@ const NAV_LINKS = [
   { path: '/profile',  label: 'Profile',      icon: '👤' },
 ];
 
+// Used at the top of every protected page (rendered inside Layout).
+// Shows the site navigation links, the user's name, and the logout button.
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Used when a user clicks "Sign out" (desktop or mobile menu).
+  // Logs the user out and sends them to the login page.
   const handleLogout = () => { logout(); navigate('/login'); };
 
   return (

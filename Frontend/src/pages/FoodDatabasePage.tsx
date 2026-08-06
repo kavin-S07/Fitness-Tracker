@@ -54,8 +54,12 @@ const MACRO_FIELDS: { key: keyof FoodReferenceDetail; label: string; unit: strin
   { key: 'saturated_fat_g',  label: 'Saturated Fat', unit: 'g' },
 ];
 
+// Used throughout the food detail modal.
+// Displays a dash for missing values instead of leaving them blank.
 const fmt = (v: unknown) => (v === null || v === undefined ? '—' : String(v));
 
+// Used as the route for /food-database.
+// Renders the searchable/sortable browse table of the full food nutrition reference data.
 const FoodDatabasePage: React.FC = () => {
   const [results, setResults]     = useState<FoodListResult[]>([]);
   const [total, setTotal]         = useState(0);
@@ -88,6 +92,8 @@ const FoodDatabasePage: React.FC = () => {
     };
   }, [searchInput]);
 
+  // Used when the page loads or the search/sort/page settings change.
+  // Fetches the current page of foods from the reference database matching the filters.
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -112,6 +118,8 @@ const FoodDatabasePage: React.FC = () => {
 
   useEffect(() => { load(); }, [load]);
 
+  // Used when the user clicks a column header in the food table.
+  // Switches sorting to that column, or flips the sort direction if already sorting by it.
   const toggleSort = (col: FoodSortBy) => {
     if (sortBy === col) {
       setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
@@ -122,6 +130,8 @@ const FoodDatabasePage: React.FC = () => {
     setPage(1);
   };
 
+  // Used when the user clicks a food row in the table.
+  // Fetches the full nutrition detail for that food to show in the detail modal.
   const openDetail = async (id: number) => {
     setDetailId(id);
     setDetail(null);
@@ -137,11 +147,13 @@ const FoodDatabasePage: React.FC = () => {
     }
   };
 
+  // Used when the user closes the food detail modal.
+  // Clears the currently open food's detail state.
   const closeDetail = () => { setDetailId(null); setDetail(null); setDetailError(null); };
 
+  // Used when rendering the pagination controls for the food database table.
+  // Builds the list of page numbers to display, with "..." for skipped ranges.
   const getPageNumbers = () => {
-    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    if (page <= 4) return [1, 2, 3, 4, '...', totalPages];
     if (page >= totalPages - 3) return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
     return [1, '...', page - 1, page, page + 1, '...', totalPages];
   };

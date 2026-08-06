@@ -13,6 +13,8 @@ const GOAL_LABELS: Record<string, string> = {
   maintain:    '⚖️ Maintain',
 };
 
+// Used as the route for /profile.
+// Renders the user's profile info, weight chart, and progress, plus the edit-profile form.
 const ProfilePage: React.FC = () => {
   const { user, updateUser, logout } = useAuth();
   const [profile,          setProfile]          = useState<User | null>(null);
@@ -29,6 +31,8 @@ const ProfilePage: React.FC = () => {
     weight: '', target_weight: '', goal: '', activity_level: '', gym_status: true,
   });
 
+  // Used when the Profile page first loads.
+  // Fetches the user's profile, weight history, and weekly progress all at once.
   const loadData = async () => {
     try {
       const profRes  = await authAPI.getProfile();
@@ -58,6 +62,8 @@ const ProfilePage: React.FC = () => {
 
   useEffect(() => { loadData(); }, []);
 
+  // Used when the user submits the "edit profile" form.
+  // Saves the updated profile fields and refreshes the displayed profile info.
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -77,6 +83,8 @@ const ProfilePage: React.FC = () => {
     } catch (err: any) { setError(err?.response?.data?.message || 'Update failed'); }
   };
 
+  // Used when the user confirms "Update Weight" in the confirmation modal.
+  // Applies the accumulated calorie deficit to the user's weight and refreshes all profile data.
   const handleUpdateWeight = async () => {
     setUpdatingWeight(true);
     setShowUpdateModal(false);
@@ -118,6 +126,8 @@ const ProfilePage: React.FC = () => {
   const heightM = (profile?.height ?? 0) / 100;
   const bmi     = heightM > 0 ? parseFloat((currentWeight / (heightM * heightM)).toFixed(1)) : null;
 
+  // Used throughout the profile card to display each stat.
+  // Renders one label/value line (e.g. "Age: 25").
   const InfoRow = ({ label, value }: { label: string; value: string | number | undefined }) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem 0', borderBottom: '1px solid var(--border)' }}>
       <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</span>

@@ -200,21 +200,6 @@ select.input-field option { background: #ffffff; color: var(--text-primary); }
   color: var(--text-secondary);
 }
 
-.food-autocomplete-servings {
-  margin-top: 0.5rem;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-.food-autocomplete-servings label {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-.food-autocomplete-servings input[type='number'] {
-  width: 5rem;
-  padding: 0.4rem 0.6rem;
-}
-
 /* ── Animations ───────────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(16px); }
@@ -308,13 +293,6 @@ select.input-field option { background: #ffffff; color: var(--text-primary); }
 .msg-error   { background: #fef2f2; border: 1px solid rgba(220,38,38,0.3);  color: #b91c1c; padding: 0.75rem 1rem; border-radius: var(--radius-sm); font-size: 0.9rem; }
 .msg-success { background: #dcfce7; border: 1px solid rgba(22,163,74,0.3);  color: #15803d; padding: 0.75rem 1rem; border-radius: var(--radius-sm); font-size: 0.9rem; }
 
-/* ── Table ────────────────────────────────────────────────── */
-.ft-table { width: 100%; border-collapse: collapse; }
-.ft-table th { text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
-.ft-table td { padding: 0.75rem 0.75rem; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 0.9rem; color: var(--text-secondary); }
-.ft-table tr:last-child td { border-bottom: none; }
-.ft-table tr:hover td { background: rgba(0,0,0,0.02); color: var(--text-primary); }
-
 /* ── Section header ───────────────────────────────────────── */
 .section-title    { font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 0.04em; color: var(--text-primary); }
 .section-subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.2rem; }
@@ -385,14 +363,6 @@ select.input-field option { background: #ffffff; color: var(--text-primary); }
 
 /* ── Floating action button ───────────────────────────────── */
 .fab { z-index: 100; }
-
-/* ── Responsive utilities ──────────────────────────────────── */
-.mobile-show { display: none !important; }
-
-@media (max-width: 768px) {
-  .mobile-hide { display: none !important; }
-  .mobile-show { display: flex !important; }
-}
 
 @media (max-width: 600px) {
   .modal-box { padding: 1.25rem !important; max-width: calc(100vw - 1rem) !important; }

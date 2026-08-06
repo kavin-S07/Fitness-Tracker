@@ -16,6 +16,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// Used once, wrapping the whole app in App.tsx.
+// Provides the logged-in user's info and auth actions (login/logout) to every page.
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('ft_token'));
@@ -37,6 +39,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  // Used when a user submits the login form.
+  // Logs the user in, then saves the token and user info for the whole app to use.
   const login = async (email: string, password: string) => {
     const res = await authAPI.login(email, password);
     const { token: t, user: u } = res.data;
@@ -45,12 +49,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(u);
   };
 
+  // Used when a user clicks "Logout".
+  // Clears the saved token and user info, ending the session.
   const logout = () => {
     localStorage.removeItem('ft_token');
     setToken(null);
     setUser(null);
   };
 
+  // Used when a user updates their profile (e.g. weight, goal).
+  // Merges the changed fields into the currently stored user info.
   const updateUser = (partial: Partial<User>) =>
     setUser((prev) => (prev ? { ...prev, ...partial } : prev));
 
@@ -61,6 +69,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// Used by any page or component that needs the logged-in user's info or auth actions.
+// Gives easy access to the AuthContext (user, token, login, logout, updateUser).
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used inside AuthProvider');

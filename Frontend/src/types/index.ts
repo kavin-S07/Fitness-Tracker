@@ -21,13 +21,6 @@ export interface User {
   created_at?: string;
 }
 
-export interface AuthResponse {
-  success: boolean;
-  message: string;
-  token: string;
-  user: User;
-}
-
 export interface DashboardToday {
   date: string;
   calories_consumed: number;
@@ -182,20 +175,6 @@ export interface MealSuggestionResponse {
   items: MealComboItem[];
 }
 
-export interface TodayFoodResponse {
-  success: boolean;
-  date: string;
-  summary: {
-    total_calories: number;
-    total_protein: number;
-    calorie_target: number;
-    protein_target: number;
-    remaining_calories: number;
-    remaining_protein: number;
-  };
-  foods: FoodEntry[];
-}
-
 export interface Exercise {
   id: number | string;
   exercise_name: string;
@@ -206,12 +185,6 @@ export interface Exercise {
   target_muscle?: string;
   muscle_group?: string;
   image_url?: string;
-}
-
-export interface WorkoutSet {
-  set_number: number;
-  reps: number;
-  weight: number;
 }
 
 export interface WorkoutLog {
@@ -225,43 +198,6 @@ export interface WorkoutLog {
   sets: number;
   notes?: string;
 }
-
-export interface WeeklyReport {
-  week_summary: { start_date: string; end_date: string };
-  nutrition: {
-    avg_daily_calories: number;
-    avg_daily_deficit: number;
-    total_deficit: number;
-    days_food_logged: number;
-    calorie_target: number;
-    avg_daily_protein: number;
-    protein_target: number;
-  };
-  workout: {
-    workout_days: number;
-    total_sets: number;
-    muscle_groups_trained: string;
-    strongest_muscle: string;
-    missed_days: number;
-  };
-  weight: {
-    current_weight: number;
-    start_weight: number;
-    end_weight: number;
-    change: number | null;
-    last_update_deficit: number | null;
-    after_update_deficit: number;
-    days_since_update: number;
-    estimated_weight: number | null;
-    target_weight: number | null;
-    progress_status: string;
-    bmr: number;
-    maintenance_calories: number;
-    bmi: number | null;
-  };
-}
-
-export type GoalType = 'weight_loss' | 'weight_gain' | 'maintain';
 
 export interface DailyTrackingDay {
   date: string;

@@ -43,6 +43,8 @@ const card: React.CSSProperties = {
   boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
 };
 
+// Used internally when displaying nutrition numbers in this panel.
+// Rounds a number to one decimal place for cleaner display.
 function round(n: number) {
   return Math.round(n * 10) / 10;
 }
@@ -56,6 +58,8 @@ interface Props {
   onLogged?: () => void;
 }
 
+// Used on the Food page as the "Suggest a meal" section.
+// Lets the user pick a meal type and see/log a pre-built meal combo that fits their remaining targets.
 const SuggestMealPanel: React.FC<Props> = ({ onLogged }) => {
   const [mealType, setMealType] = useState<MealType>('breakfast');
 
@@ -85,6 +89,8 @@ const SuggestMealPanel: React.FC<Props> = ({ onLogged }) => {
   useEffect(() => {
     let cancelled = false;
 
+    // Used automatically when the panel first loads or the user changes the meal type.
+    // Loads the user's remaining calories/protein for this meal, then fetches a matching combo suggestion.
     const run = async () => {
       setTargetsLoading(true);
       setLoading(true);
@@ -149,6 +155,8 @@ const SuggestMealPanel: React.FC<Props> = ({ onLogged }) => {
   // ------------------------------------------------------------------
   // "Next combination" — same targets, excludes everything shown so far.
   // ------------------------------------------------------------------
+  // Used when the user clicks "Next combination".
+  // Fetches another combo suggestion, skipping ones already shown this session.
   const handleNext = async () => {
     setLoading(true);
     setError(null);
@@ -183,6 +191,8 @@ const SuggestMealPanel: React.FC<Props> = ({ onLogged }) => {
   // ------------------------------------------------------------------
   // "Show random combination" — surprise me, ignores targets & exclude list.
   // ------------------------------------------------------------------
+  // Used when the user clicks "Show random combination" (Surprise me).
+  // Fetches a fully random meal combo for the selected meal type, ignoring calorie/protein targets.
   const handleRandom = async () => {
     setLoading(true);
     setError(null);
@@ -211,6 +221,8 @@ const SuggestMealPanel: React.FC<Props> = ({ onLogged }) => {
   // ------------------------------------------------------------------
   // "Log this combo" — one POST /api/food/add per item, in one batch.
   // ------------------------------------------------------------------
+  // Used when the user clicks "Log this combo".
+  // Saves every food item in the suggested combo as separate food entries in one batch.
   const handleLogCombo = async () => {
     if (!combo || items.length === 0) return;
     setLogLoading(true);

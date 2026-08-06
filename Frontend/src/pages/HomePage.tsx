@@ -17,6 +17,8 @@ const GoalLabel: Record<string, string> = {
 };
 
 // ── small display helpers ─────────────────────────────────────
+// Used throughout the dashboard's stat cards.
+// Renders a small labeled number (e.g. "Calories Today: 1500 kcal").
 const Stat = ({
   label, value, unit, color,
 }: {
@@ -36,6 +38,8 @@ const Stat = ({
   </div>
 );
 
+// Used inside the Weekly Report modal.
+// Renders one label/value line (e.g. "Calorie target / day: 2000 kcal").
 const Row = ({ k, v, color }: { k: string; v: string; color?: string }) => (
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid var(--border)' }}>
     <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600 }}>{k}</span>
@@ -44,6 +48,8 @@ const Row = ({ k, v, color }: { k: string; v: string; color?: string }) => (
 );
 
 // ── component ─────────────────────────────────────────────────
+// Used as the route for /home.
+// Renders the main dashboard: today's stats, weekly charts, weight logging, and the weekly report.
 const HomePage: React.FC = () => {
   const { user } = useAuth();
   const [data,           setData]           = useState<Dashboard | null>(null);
@@ -54,6 +60,8 @@ const HomePage: React.FC = () => {
   const [weeklyProgress, setWeeklyProgress] = useState<WeeklyProgress | null>(null);
   const [weightHistory,  setWeightHistory]  = useState<WeightHistoryRecord[]>([]);
 
+  // Used when the HomePage first loads and after the user logs a new weight.
+  // Fetches the dashboard summary, weekly progress, and weight history all at once.
   const load = useCallback(async () => {
     try {
       const dashRes = await dashboardAPI.get();
@@ -72,6 +80,8 @@ const HomePage: React.FC = () => {
 
   useEffect(() => { load(); }, [load]);
 
+  // Used when the user submits the weight input on the dashboard.
+  // Sends the new weight to the backend and refreshes the dashboard data.
   const logWeight = async () => {
     if (!weightInput) return;
     try {
@@ -97,6 +107,8 @@ const HomePage: React.FC = () => {
   const proPct = u ? Math.min(100, Math.round(((today?.protein_consumed  || 0) / (u.daily_protein_target  || 1)) * 100)) : 0;
 
   // Safe date slicer — works on both 'YYYY-MM-DD' and legacy ISO strings
+  // Used when preparing dates for the charts and tables on this page.
+  // Converts a date string into a short "MM-DD" format for display.
   const toMMDD = (s: string) => (s || '').replace(/T.*/, '').slice(5);
 
   const chartData = data?.weekly_food_chart.map(d => ({
@@ -111,7 +123,11 @@ const HomePage: React.FC = () => {
   })) || [];
 
   // ── colours ───────────────────────────────────────────────
+  // Used when displaying deficit/surplus numbers on this page.
+  // Picks green for a good (positive) deficit and red for a bad (negative) one.
   const deficitColor  = (v: number) => v >= 0 ? 'var(--green)' : '#ef4444';
+  // Used when displaying "weight remaining" on this page.
+  // Picks a color based on whether the user is above, below, or at their target weight.
   const remainColor   = (v: number | null) =>
     v == null ? 'var(--text-muted)' : v === 0 ? 'var(--green)' : v > 0 ? 'var(--blue)' : '#ef4444';
 

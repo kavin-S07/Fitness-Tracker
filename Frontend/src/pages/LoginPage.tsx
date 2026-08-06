@@ -5,6 +5,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+// Used as the route for /login.
+// Renders the login form and shows the page users land on to sign into the app.
 const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -13,6 +15,8 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Used when the user submits the login form.
+  // Logs the user in and redirects them to the home page, or shows an error.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');

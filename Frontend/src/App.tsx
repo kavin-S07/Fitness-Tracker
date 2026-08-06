@@ -16,6 +16,8 @@ import ProfilePage  from './pages/ProfilePage';
 import LandingPage from './pages/LandingPage';
 import FoodDatabasePage from './pages/FoodDatabasePage';
 
+// Used once, as the root component rendered by index.tsx.
+// Sets up the page background and defines all the app's routes/pages.
 const App: React.FC = () => {
 
   useEffect(() => {
