@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 
+// Used on every protected route (profile, food, exercise, progress, dashboard, weight).
+// Checks the request's JWT token and blocks the request if it's missing or invalid.
 const authMiddleware = (req, res, next) => {
   // Get token from header
   const authHeader = req.headers.authorization;

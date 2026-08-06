@@ -22,6 +22,8 @@ const { calculateMetrics } = require('../utils/metrics');
 
 // ── Date helpers ─────────────────────────────────────────────
 
+// Used internally to figure out "this week"'s date range.
+// Returns the Monday and Sunday dates for the week containing the given date.
 function getWeekDateRange(date = new Date()) {
   const d    = new Date(date);
   const day  = d.getDay();
@@ -36,6 +38,8 @@ function getWeekDateRange(date = new Date()) {
   };
 }
 
+// Used internally when comparing progress to the prior week.
+// Returns the Monday and Sunday dates for the week before the one containing the given date.
 function getLastWeekDateRange(date = new Date()) {
   const d         = new Date(date);
   const day       = d.getDay();
@@ -54,6 +58,8 @@ function getLastWeekDateRange(date = new Date()) {
 
 // ── Internal: log today's calories for a user ─────────────────
 
+// Used internally whenever the progress page loads or a user's day needs refreshing.
+// Recalculates and saves today's calorie deficit/surplus for one user based on food logged so far.
 async function logTodayForUser(userId) {
   const userResult = await pool.query(
     'SELECT id, daily_calories, goal FROM users WHERE id = $1',
@@ -103,6 +109,8 @@ async function logTodayForUser(userId) {
 
 // ── Internal: weekly automatic weight recalculation ──────────
 
+// Used internally, automatically on Mondays when the progress page loads.
+// Updates a user's weight and targets based on their accumulated calorie deficit since the last update.
 async function applyWeeklyUpdateForUser(userId) {
   const userResult = await pool.query(
     'SELECT id, weight, goal, height, age, gender, activity_level, gym_status FROM users WHERE id = $1',
@@ -112,16 +120,26 @@ async function applyWeeklyUpdateForUser(userId) {
   const user = userResult.rows[0];
   if (!['weight_loss', 'weight_gain'].includes(user.goal)) return;
 
-  const { start: weekStart, end: weekEnd } = getLastWeekDateRange();
-
-  // Prevent duplicate weekly entries
-  const existing = await pool.query(
-    'SELECT id FROM weight_history WHERE user_id = $1 AND week_start = $2',
-    [userId, weekStart]
+  // Rolling window: from the day after the last weight_history.week_end through today
+  const today = new Date().toISOString().split('T')[0];
+  const lastHistRes = await pool.query(
+    `SELECT TO_CHAR(week_end, 'YYYY-MM-DD') AS week_end
+     FROM weight_history WHERE user_id = $1 ORDER BY week_end DESC LIMIT 1`,
+    [userId]
   );
-  if (existing.rows.length > 0) return;
+  const lastWeekEnd = lastHistRes.rows.length > 0
+    ? lastHistRes.rows[0].week_end
+    : '1970-01-01';
 
-  // Sum actual_deficit for the week
+  const startDate = new Date(lastWeekEnd);
+  startDate.setDate(startDate.getDate() + 1);
+  const weekStart = startDate.toISOString().split('T')[0];
+  const weekEnd   = today;
+
+  // Skip if there are no days to process
+  if (startDate > new Date(today)) return;
+
+  // Sum actual_deficit for the date range
   // actual_deficit already reflects the real calorie deficit/surplus
   // (no further +500 adjustment needed)
   const deficitResult = await pool.query(
@@ -165,6 +183,8 @@ async function applyWeeklyUpdateForUser(userId) {
 
 // ── GET /api/progress/weekly ──────────────────────────────────
 
+// Used when the Progress page loads.
+// Returns this week's calorie deficit progress, last week's results, and a projected weight update.
 const getWeeklyProgress = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -378,6 +398,8 @@ const getWeeklyProgress = async (req, res) => {
 
 // ── GET /api/progress/history ─────────────────────────────────
 
+// Used to show a user's past weekly weight updates.
+// Returns the last 20 weekly weight-change records.
 const getWeightHistory = async (req, res) => {
   try {
     const result = await pool.query(
@@ -409,6 +431,8 @@ const getWeightHistory = async (req, res) => {
 
 // ── POST /api/progress/log-today ──────────────────────────────
 
+// Used when the frontend wants to refresh today's calorie tracking on demand.
+// Triggers a recalculation of today's deficit/surplus for the logged-in user.
 const logToday = async (req, res) => {
   try {
     await logTodayForUser(req.user.id);
@@ -426,6 +450,8 @@ const logToday = async (req, res) => {
 //   2. Recalculate weight + targets based on new weight
 //   3. Reset tracking cycle (future deficits start fresh from today)
 
+// Used when the user clicks "Update Weight" on the Progress page.
+// Applies the accumulated calorie deficit to update the user's weight and resets tracking for the new cycle.
 const applyUpdate = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -448,17 +474,18 @@ const applyUpdate = async (req, res) => {
        FROM weight_history WHERE user_id = $1 ORDER BY week_end DESC LIMIT 1`,
       [userId]
     );
-    const sinceDate = lastHist.rows.length > 0 ? lastHist.rows[0].week_end : '1970-01-01';
+    const lastHistoryEndDate = lastHist.rows.length > 0 ? lastHist.rows[0].week_end : '1970-01-01';
 
-    // Sum actual_deficit accumulated since the last update
+    // Sum actual_deficit accumulated since the last update.
+    // Uses >= so that today's deficit is included when the last update was today.
     const deficitResult = await pool.query(
       `SELECT COALESCE(SUM(actual_deficit), 0)::float AS total,
               TO_CHAR(MIN(date), 'YYYY-MM-DD') AS first_date,
               TO_CHAR(MAX(date), 'YYYY-MM-DD') AS last_date,
               COUNT(*)::int AS days
        FROM daily_calorie_tracking
-       WHERE user_id = $1 AND date > $2`,
-      [userId, sinceDate]
+       WHERE user_id = $1 AND date >= $2`,
+      [userId, lastHistoryEndDate]
     );
     const row           = deficitResult.rows[0];
     const totalDeficit  = parseFloat(row.total) || 0;

@@ -3,6 +3,8 @@ const pool = require('../config/db');
 // ============================================
 // GET /api/exercise/list
 // ============================================
+// Used when the exercise library loads (optionally filtered by muscle type).
+// Fetches the list of available exercises, grouped by type unless a filter is applied.
 const getExercises = async (req, res) => {
   const { type } = req.query;
   try {
@@ -31,6 +33,8 @@ const getExercises = async (req, res) => {
 // ============================================
 // GET /api/exercise/categories
 // ============================================
+// Used when the exercise page loads its category filter options.
+// Returns the list of distinct exercise types (muscle groups) available.
 const getCategories = async (req, res) => {
   try {
     const result = await pool.query(
@@ -49,6 +53,8 @@ const getCategories = async (req, res) => {
 // ============================================
 // GET /api/exercise/:id
 // ============================================
+// Used when a user clicks on a specific exercise to see its details.
+// Fetches one exercise record by its ID.
 const getExerciseById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -69,6 +75,8 @@ const getExerciseById = async (req, res) => {
 // Each set is inserted as its own workout_logs row (sets = 1).
 // Legacy scalar mode (sets/reps/weight as plain numbers) still supported.
 // ============================================
+// Used when a user logs a workout on the Exercise page.
+// Saves one or more sets (reps/weight) for the chosen exercise on a given date.
 const addWorkout = async (req, res) => {
   const { exercise_id, sets, reps, weight, workout_date, notes } = req.body;
 
@@ -166,6 +174,8 @@ const addWorkout = async (req, res) => {
 // Returns flat array under key "workouts" so ExercisePage can iterate it.
 // Also keeps "workout" key for backward compatibility.
 // ============================================
+// Used when the Exercise page loads to show what the user has logged today.
+// Fetches all of today's workout sets along with their exercise details.
 const getTodayWorkout = async (req, res) => {
   const today = new Date().toISOString().split('T')[0];
   try {
@@ -214,6 +224,8 @@ const getTodayWorkout = async (req, res) => {
 // ============================================
 // GET /api/exercise/workout/history
 // ============================================
+// Used to show a user's recent workout activity.
+// Returns a day-by-day summary of workouts logged over the last 30 days.
 const getWorkoutHistory = async (req, res) => {
   try {
     const result = await pool.query(
@@ -241,6 +253,8 @@ const getWorkoutHistory = async (req, res) => {
 // ============================================
 // GET /api/exercise/workout/progress/:exercise_id
 // ============================================
+// Used when a user views their progress chart for a specific exercise.
+// Returns the max weight, total sets, and average reps logged per day for that exercise.
 const getExerciseProgress = async (req, res) => {
   const { exercise_id } = req.params;
   try {
@@ -278,6 +292,8 @@ const getExerciseProgress = async (req, res) => {
 // ============================================
 // DELETE /api/exercise/workout/:id
 // ============================================
+// Used when a user deletes a logged workout entry.
+// Removes the workout log if it belongs to the requesting user.
 const deleteWorkout = async (req, res) => {
   const { id } = req.params;
   try {
@@ -299,6 +315,8 @@ const deleteWorkout = async (req, res) => {
 // GET /api/exercise/workout/all
 // Returns all workout logs for the user within last N days
 // ============================================
+// Used when a user wants to view their full workout history.
+// Returns all workout logs from the last N days (default 90) with exercise details.
 const getAllWorkouts = async (req, res) => {
   const days = parseInt(req.query.days) || 90;
   try {

@@ -5,16 +5,11 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js",
-    "import:food-reference": "node scripts/importFoodReference.js",
-    "import:food-nutrition-reference": "node scripts/importFoodNutritionReference.js",
-    "import:meal-combinations": "node scripts/importMealCombinations.js"
+    "dev": "node --watch server.js"
   },
   "dependencies": {
-    "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "csv-parse": "^5.6.0",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",

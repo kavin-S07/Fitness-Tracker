@@ -1,5 +1,7 @@
 const pool = require('../config/db');
 
+// Used when a user types into the food autocomplete search box.
+// Looks up matching foods from the reference database for live suggestions.
 /**
  * GET /api/food/search?q=idli
  * Returns up to 10 matching foods from food_nutrition_reference for the
@@ -20,7 +22,7 @@ const searchFoodReference = async (req, res) => {
        FROM food_nutrition_reference
        WHERE food_name ILIKE $1
        ORDER BY
-         CASE WHEN food_name ILIKE $2 THEN 0 ELSE 1 END, -- exact-prefix matches first
+         CASE WHEN food_name ILIKE $2 THEN 0 ELSE 1 END,
          food_name ASC
        LIMIT 10`,
       [`%${q}%`, `${q}%`]
@@ -45,6 +47,10 @@ const SORTABLE_COLUMNS = new Set([
 ]);
 const SORT_DIRECTIONS = new Set(['asc', 'desc']);
 
+// Used when the Food Database page loads or the user searches/sorts/pages through it.
+// Returns a paginated, searchable, sortable list of foods from the reference table.
+// Used when the Food Database page loads or the user searches/sorts/pages through it.
+// Returns a paginated, searchable, sortable list of foods from the reference table.
 /**
  * GET /api/food/reference?search=&sortBy=&sortDir=&page=&pageSize=
  * Paginated/sortable/searchable browse of the full food_nutrition_reference
@@ -110,6 +116,10 @@ const listFoodReference = async (req, res) => {
   }
 };
 
+// Used when a user clicks a food in the Food Database to see full nutrition details.
+// Fetches the complete reference row (including micronutrients) for one food by ID.
+// Used when a user clicks a food in the Food Database to see full nutrition details.
+// Fetches the complete nutrition record for one reference food by its ID.
 /**
  * GET /api/food/reference/:id
  * Returns the full row (all micronutrient columns) for a single

@@ -8,6 +8,8 @@ const { calculateMetrics } = require('../utils/metrics');
 
 // ── POST /api/auth/signup ─────────────────────────────────────
 
+// Used when a new user submits the signup form.
+// Creates the user account, calculates starting calorie/protein targets, and returns a login token.
 const signup = async (req, res) => {
   const {
     name, email, password, age, gender, weight, height,
@@ -97,6 +99,8 @@ const signup = async (req, res) => {
 
 // ── POST /api/auth/login ──────────────────────────────────────
 
+// Used when a user submits the login form.
+// Checks the email/password, then returns a JWT token and the user's profile info.
 const login = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -159,6 +163,8 @@ const login = async (req, res) => {
 
 // ── GET /api/auth/profile ─────────────────────────────────────
 
+// Used when the profile page loads for a logged-in user.
+// Fetches the user's saved details and returns freshly recalculated calorie/protein targets.
 const getProfile = async (req, res) => {
   try {
     const result = await pool.query(
@@ -206,6 +212,8 @@ const getProfile = async (req, res) => {
 
 // ── PUT /api/auth/profile ─────────────────────────────────────
 
+// Used when a user saves changes on the profile page (weight, goal, activity level, etc.).
+// Updates the user's record and recalculates their calorie/protein targets.
 const updateProfile = async (req, res) => {
   const { weight, target_weight, goal, activity_level, gym_status } = req.body;
 

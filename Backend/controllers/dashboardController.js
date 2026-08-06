@@ -5,7 +5,14 @@ const pool               = require('../config/db');
 const { calculateMetrics } = require('../utils/metrics');
 
 // ── GET /api/dashboard ────────────────────────────────────────
+// COALESCE = COmbine + ALternate + SElect
+// TO_CHAR() is a PostgreSQL function used to convert a value (especially date/time or number) into a formatted string (text).
+//parseFloat() is a JavaScript function used to convert a string value into a floating-point number
+//ON CONFLICT is used to handle duplicate records during an INSERT operation.
+//DO UPDATE tells PostgreSQL to update the existing row instead of throwing an error when a conflict (duplicate record) occurs.
 
+// Used when the home/dashboard page loads.
+// Gathers today's food, workout, and weight stats plus a 7-day chart to display to the user.
 const getDashboard = async (req, res) => {
   const today = new Date().toISOString().split('T')[0];
 
@@ -131,6 +138,8 @@ const getDashboard = async (req, res) => {
 
 // ── GET /api/report/weekly ────────────────────────────────────
 
+// Used when the user views their weekly progress report.
+// Summarizes the past week's nutrition, workouts, and weight change into one report.
 const getWeeklyReport = async (req, res) => {
   try {
     const userResult = await pool.query(
@@ -291,6 +300,8 @@ const getWeeklyReport = async (req, res) => {
 
 // ── POST /api/weight/log ──────────────────────────────────────
 
+// Used when a user logs their current weight.
+// Saves the weight entry and recalculates their calorie/protein targets from the new weight.
 const logWeight = async (req, res) => {
   const { weight, date } = req.body;
 
@@ -358,6 +369,8 @@ const logWeight = async (req, res) => {
 
 // ── GET /api/weight/history ───────────────────────────────────
 
+// Used to get a user's recent weight entries.
+// Returns the last 30 days of logged weights for the weight history chart.
 const getWeightHistory = async (req, res) => {
   try {
     const result = await pool.query(

@@ -2,6 +2,8 @@
 // utils/metrics.js  –  Centralised fitness calculation logic
 // ============================================================
 
+// Used during signup, login, profile view/update, and dashboard loads.
+// Computes BMR, calorie target, protein target, and BMI from the user's stats.
 /**
  * calculateMetrics
  *

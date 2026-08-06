@@ -6,6 +6,8 @@ const pool = require('../config/db');
 // Backend column is `meal_type` and validation expects lowercase.
 // Accept `meal_type` OR `category` and normalise to lowercase for the DB.
 // ============================================
+// Used when a user logs a food item they ate.
+// Saves the food entry with its nutrition info and meal type for that day.
 const addFood = async (req, res) => {
   const { food_name, calories, protein, carbs, fats, fiber, quantity, unit, date } = req.body;
 
@@ -61,6 +63,8 @@ const addFood = async (req, res) => {
 // ============================================
 // GET /api/food/today
 // ============================================
+// Used when the Food page loads to show today's meals.
+// Returns today's logged foods plus a summary of calories/protein eaten vs. target.
 const getTodayFood = async (req, res) => {
   const today = new Date().toISOString().split('T')[0];
   try {
@@ -114,6 +118,8 @@ const getTodayFood = async (req, res) => {
 // ============================================
 // GET /api/food/history  –  ALL history (no 30-day limit)
 // ============================================
+// Used to show a user's full food logging history.
+// Returns daily calorie/protein totals for every day the user has logged food.
 const getFoodHistory = async (req, res) => {
   try {
     const result = await pool.query(
@@ -146,6 +152,8 @@ const getFoodHistory = async (req, res) => {
 // ============================================
 // GET /api/food/date/:date  –  ensure summary keys match frontend
 // ============================================
+// Used when a user picks a specific date on the Food page to review.
+// Returns the foods logged on that date plus a calorie/protein summary.
 const getFoodByDate = async (req, res) => {
   const { date } = req.params;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -208,6 +216,8 @@ const getFoodByDate = async (req, res) => {
 };// ============================================
 // PUT /api/food/:id
 // ============================================
+// Used when a user edits a previously logged food entry.
+// Updates only the fields that were changed for that food entry.
 const updateFood = async (req, res) => {
   const { id } = req.params;
   const { food_name, calories, protein, carbs, fats, fiber, category, meal_type, date } = req.body;
@@ -257,6 +267,8 @@ const updateFood = async (req, res) => {
 // ============================================
 // DELETE /api/food/:id
 // ============================================
+// Used when a user deletes a logged food entry.
+// Removes the food entry if it belongs to the requesting user.
 const deleteFood = async (req, res) => {
   const { id } = req.params;
   try {
